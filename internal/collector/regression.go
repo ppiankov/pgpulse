@@ -63,10 +63,7 @@ func (c *Collector) collectRegression(ctx context.Context) error {
 			continue // new query, no previous data
 		}
 
-		// Parse labels back from key.
 		var fingerprint, usename string
-		fmt.Sscanf(key, "%s", &fingerprint)
-		// Use the original scan values instead — find them by splitting.
 		for i := 0; i < len(key); i++ {
 			if key[i] == '|' {
 				fingerprint = key[:i]

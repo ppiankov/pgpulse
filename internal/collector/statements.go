@@ -37,10 +37,6 @@ ORDER BY %s DESC
 LIMIT %d
 `
 
-// statementsQueryV13 and statementsQueryV12 are used by regression.go.
-var statementsQueryV13 = fmt.Sprintf(stmtBaseV13, "total_exec_time", 50)
-var statementsQueryV12 = fmt.Sprintf(stmtBaseV12, "total_time", 50)
-
 func stmtQuery(useV13 bool, orderBy string, limit int) string {
 	if useV13 {
 		return fmt.Sprintf(stmtBaseV13, orderBy, limit)

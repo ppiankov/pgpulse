@@ -10,7 +10,7 @@ A heartbeat monitor for PostgreSQL — polls `pg_stat_activity`, `pg_stat_statem
 - A lightweight sidecar that connects to PostgreSQL and exposes 30+ Prometheus-compatible metrics
 - A poll-based exporter for activity, connections, slow queries, vacuum health, table/index bloat, lock graphs, replication lag, WAL rate, checkpoint pressure, and query regression detection
 - Compatible with PostgreSQL 12+ (auto-detects version for correct column names)
-- Ships with a 63-panel Grafana dashboard and a Helm chart with ServiceMonitor
+- Ships with a 64-panel Grafana dashboard and a Helm chart with ServiceMonitor
 - Zero config beyond a DSN — sensible defaults for everything
 
 ## What pgpulse is NOT
@@ -66,15 +66,37 @@ pgpulse auto-detects PostgreSQL version and uses the correct column names (`tota
 | Replication lag (`replay_lag`) | 10 | Graceful skip if not a primary |
 | Node role detection (`pg_is_in_recovery`) | 12 | Auto-detects primary vs replica each poll |
 
+### Required: pg_hba.conf
+
+Allow the `pgpulse` role to connect from your monitoring network:
+
+```
+# Same host
+host    all    pgpulse    127.0.0.1/32    scram-sha-256
+
+# Kubernetes pod CIDR
+host    all    pgpulse    10.244.0.0/16    scram-sha-256
+```
+
+Reload after editing: `SELECT pg_reload_conf();`
+
+### Which database to connect to
+
+pgpulse must connect to the **application database**, not `postgres`. Per-table metrics (vacuum health, bloat, table sizes, index sizes, sequential scan ratios) use `pg_stat_user_tables` which only shows tables in the connected database.
+
+Cluster-wide metrics (activity, connections, replication, WAL, checkpoints) work from any database.
+
+If you have multiple databases to monitor, create one target per database (see [multi-database monitoring](#multi-database-monitoring) below).
+
 ### Connection string
 
 pgpulse connects using a standard PostgreSQL DSN:
 
 ```
-postgres://pgpulse@hostname:5432/postgres?sslmode=require
+postgres://pgpulse@hostname:5432/mydb?sslmode=require
 ```
 
-For production, always use `sslmode=require` or `sslmode=verify-full`. Connect to the `postgres` database (or any database where `pg_stat_statements` is installed).
+For production, always use `sslmode=require` or `sslmode=verify-full`.
 
 ### pgbouncer: connect directly to PostgreSQL
 
@@ -100,27 +122,58 @@ pgpulse auto-detects whether each target is a **primary** or **replica** by quer
 - **Replication metrics** are only collected on the primary (auto-skipped on replicas)
 - All other metrics (activity, vacuum, bloat, locks, etc.) are collected on every node
 
-Example for a 3-node Patroni cluster:
+In Grafana, use the `instance` and `role` template variables to filter by node or compare primary vs replicas.
 
-```bash
-# Binary — one pgpulse per node
-PG_DSN="postgres://pgpulse@node1:5432/postgres" ./bin/pgpulse serve
-PG_DSN="postgres://pgpulse@node2:5432/postgres" ./bin/pgpulse serve
-PG_DSN="postgres://pgpulse@node3:5432/postgres" ./bin/pgpulse serve
+### Multi-database monitoring
 
-# Helm — all nodes as targets
-helm install pgpulse charts/pgpulse/ \
-  --set 'targets[0].name=node1' \
-  --set 'targets[0].dsn=postgres://pgpulse@node1:5432/postgres' \
-  --set 'targets[1].name=node2' \
-  --set 'targets[1].dsn=postgres://pgpulse@node2:5432/postgres' \
-  --set 'targets[2].name=node3' \
-  --set 'targets[2].dsn=postgres://pgpulse@node3:5432/postgres' \
-  --set serviceMonitor.enabled=true \
-  --set serviceMonitor.labels.release=kube-prometheus-stack
+Per-table metrics (`pg_stat_user_tables`, `pg_stat_user_indexes`) are scoped to the connected database. To monitor multiple databases, create one target per database per node.
+
+Example: 3 nodes × 3 databases = 9 targets. Use a values file (`pgpulse-values.yaml`):
+
+```yaml
+targets:
+  # Node 1
+  - name: node1-appdb1
+    dsn: "postgres://pgpulse@node1:5432/appdb1?sslmode=require"
+  - name: node1-appdb2
+    dsn: "postgres://pgpulse@node1:5432/appdb2?sslmode=require"
+  - name: node1-appdb3
+    dsn: "postgres://pgpulse@node1:5432/appdb3?sslmode=require"
+  # Node 2
+  - name: node2-appdb1
+    dsn: "postgres://pgpulse@node2:5432/appdb1?sslmode=require"
+  - name: node2-appdb2
+    dsn: "postgres://pgpulse@node2:5432/appdb2?sslmode=require"
+  - name: node2-appdb3
+    dsn: "postgres://pgpulse@node2:5432/appdb3?sslmode=require"
+  # Node 3
+  - name: node3-appdb1
+    dsn: "postgres://pgpulse@node3:5432/appdb1?sslmode=require"
+  - name: node3-appdb2
+    dsn: "postgres://pgpulse@node3:5432/appdb2?sslmode=require"
+  - name: node3-appdb3
+    dsn: "postgres://pgpulse@node3:5432/appdb3?sslmode=require"
+
+serviceMonitor:
+  enabled: true
+  scrapeTimeout: "10s"
+  labels:
+    release: prometheus-operator
+
+prometheusRule:
+  enabled: true
+  labels:
+    release: prometheus-operator
+
+dashboard:
+  enabled: true
 ```
 
-In Grafana, use the `instance` and `role` template variables to filter by node or compare primary vs replicas.
+```bash
+helm upgrade --install pgpulse charts/pgpulse/ -f pgpulse-values.yaml -n pgpulse-system
+```
+
+Each target creates its own Deployment (2 PostgreSQL connections each). Cluster-wide metrics (activity, connections, replication) will be identical across databases on the same node — some duplication but harmless. If `pg_stat_statements` is needed, create the extension in each database.
 
 ## Quick start
 
@@ -129,12 +182,12 @@ In Grafana, use the `instance` and `role` template variables to filter by node o
 make build
 
 # Run
-export PG_DSN="postgres://pgpulse@localhost:5432/postgres?sslmode=disable"
+export PG_DSN="postgres://pgpulse@localhost:5432/mydb?sslmode=disable"
 ./bin/pgpulse serve
 
 # Docker
 docker build -t pgpulse:dev .
-docker run -e PG_DSN="postgres://pgpulse@localhost/postgres" -p 9187:9187 pgpulse:dev
+docker run -e PG_DSN="postgres://pgpulse@localhost/mydb" -p 9187:9187 pgpulse:dev
 ```
 
 Metrics at `http://localhost:9187/metrics`, health check at `/healthz`.
@@ -142,30 +195,28 @@ Metrics at `http://localhost:9187/metrics`, health check at `/healthz`.
 ### Helm (Kubernetes)
 
 ```bash
-helm install pgpulse charts/pgpulse/ \
-  --set 'targets[0].name=prod-primary' \
-  --set 'targets[0].dsn=postgres://pgpulse@primary:5432/postgres' \
-  --set serviceMonitor.enabled=true \
-  --set serviceMonitor.labels.release=kube-prometheus-stack \
-  --set prometheusRule.enabled=true \
-  --set prometheusRule.labels.release=kube-prometheus-stack
+helm upgrade --install pgpulse charts/pgpulse/ -f pgpulse-values.yaml -n pgpulse-system
 ```
 
-Multi-target example (primary + replica):
+Minimal `pgpulse-values.yaml`:
 
-```bash
-helm install pgpulse charts/pgpulse/ \
-  --set 'targets[0].name=primary' \
-  --set 'targets[0].dsn=postgres://pgpulse@primary:5432/postgres' \
-  --set 'targets[1].name=replica' \
-  --set 'targets[1].existingSecret=my-pg-replica-secret' \
-  --set serviceMonitor.enabled=true \
-  --set serviceMonitor.labels.release=kube-prometheus-stack \
-  --set prometheusRule.enabled=true \
-  --set prometheusRule.labels.release=kube-prometheus-stack
+```yaml
+targets:
+  - name: prod
+    dsn: "postgres://pgpulse@pghost:5432/mydb?sslmode=require"
+
+serviceMonitor:
+  enabled: true
+  labels:
+    release: prometheus-operator
+
+prometheusRule:
+  enabled: true
+  labels:
+    release: prometheus-operator
 ```
 
-Each target gets its own Deployment. ServiceMonitor auto-discovers all targets. PrometheusRule ships with 5 opinionated alerts. Grafana dashboard auto-loads via sidecar ConfigMap.
+Each target gets its own Deployment. ServiceMonitor auto-discovers all targets. PrometheusRule ships with 5 opinionated alerts. Grafana dashboard auto-loads via sidecar ConfigMap. For multi-node and multi-database setups, see [HA clusters](#ha-clusters-patroni-repmgr-stolon) and [multi-database monitoring](#multi-database-monitoring).
 
 ### systemd
 
@@ -265,6 +316,9 @@ All configuration is via environment variables:
 - `pg_checkpoints_requested_total` — requested checkpoints
 - `pg_buffers_checkpoint` — buffers written during checkpoints
 
+### Node role
+- `pg_node_role{role}` — 1 for current role (`primary` or `replica`), auto-detected each poll
+
 ### Scrape health
 - `pg_up` — 1 if PostgreSQL is reachable, 0 otherwise
 - `pg_scrape_duration_seconds` — time taken to collect metrics
@@ -295,7 +349,7 @@ internal/
   metrics/                        Prometheus metric definitions
 charts/pgpulse/                   Helm chart with ServiceMonitor + PrometheusRule
 grafana/
-  pgpulse-dashboard.json          63-panel importable Grafana dashboard
+  pgpulse-dashboard.json          64-panel importable Grafana dashboard
 deploy/
   pgpulse.service                 systemd unit file
   pgpulse.env.example             Environment file template

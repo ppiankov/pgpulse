@@ -17,6 +17,7 @@ type Collector struct {
 	useV13              bool
 	hasPG14             bool
 	hasPG17             bool
+	hasReplication      bool
 	prevStmts           map[string]stmtSnapshot
 	regressionThreshold float64
 	prevWalBytes        float64
@@ -39,14 +40,15 @@ func New(db Querier, m *metrics.Metrics, cfg config.Config) *Collector {
 
 // ProbeExtensions checks if pg_stat_statements is available and detects the PG version.
 func (c *Collector) ProbeExtensions(ctx context.Context) {
-	row := c.db.QueryRowContext(ctx, "SELECT 1 FROM pg_extension WHERE extname = 'pg_stat_statements'")
-	var one int
-	if err := row.Scan(&one); err != nil {
-		log.Println("pg_stat_statements not available, statement metrics will be skipped")
+	// Verify pg_stat_statements is both installed and loaded.
+	row := c.db.QueryRowContext(ctx, "SELECT count(*) FROM pg_stat_statements LIMIT 1")
+	var count int
+	if err := row.Scan(&count); err != nil {
+		log.Printf("pg_stat_statements not available (install extension and add to shared_preload_libraries): %v", err)
 		c.hasStmt = false
-		return
+	} else {
+		c.hasStmt = true
 	}
-	c.hasStmt = true
 
 	// Detect PG version for correct column names
 	row = c.db.QueryRowContext(ctx, "SHOW server_version_num")
@@ -60,6 +62,17 @@ func (c *Collector) ProbeExtensions(ctx context.Context) {
 	c.hasPG14 = versionNum >= 140000
 	c.hasPG17 = versionNum >= 170000
 	log.Printf("PostgreSQL version %d detected, pg_stat_statements v13 columns: %v", versionNum, c.useV13)
+
+	// Probe replication view access by checking column existence.
+	var colExists int
+	probeErr := c.db.QueryRowContext(ctx,
+		"SELECT 1 FROM information_schema.columns WHERE table_name = 'pg_stat_replication' AND column_name = 'slot_name'").Scan(&colExists)
+	if probeErr != nil {
+		log.Printf("pg_stat_replication not accessible, replication metrics will be skipped: %v", probeErr)
+		c.hasReplication = false
+	} else {
+		c.hasReplication = true
+	}
 }
 
 func (c *Collector) Run(ctx context.Context) {
@@ -125,9 +138,11 @@ func (c *Collector) collect(ctx context.Context) {
 		}
 	}
 
-	if err := collectReplication(ctx, c.db, c.metrics); err != nil {
-		log.Printf("replication collection error: %v", err)
-		c.metrics.ScrapeErrors.Inc()
+	if c.hasReplication {
+		if err := collectReplication(ctx, c.db, c.metrics); err != nil {
+			log.Printf("replication collection error: %v", err)
+			c.metrics.ScrapeErrors.Inc()
+		}
 	}
 
 	if err := collectConnLifecycle(ctx, c.db, c.metrics); err != nil {

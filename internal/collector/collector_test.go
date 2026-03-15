@@ -472,10 +472,10 @@ func TestCollector_ProbeExtensions(t *testing.T) {
 			defer q.db.Close()
 
 			if tt.availErr != nil {
-				mock.ExpectQuery("SELECT 1 FROM pg_extension WHERE extname = 'pg_stat_statements'").WillReturnError(tt.availErr)
+				mock.ExpectQuery("SELECT count.*FROM pg_stat_statements.*").WillReturnError(tt.availErr)
 			} else {
-				rows := sqlmock.NewRows([]string{"one"}).AddRow(tt.avail)
-				mock.ExpectQuery("SELECT 1 FROM pg_extension WHERE extname = 'pg_stat_statements'").WillReturnRows(rows)
+				rows := sqlmock.NewRows([]string{"count"}).AddRow(tt.avail)
+				mock.ExpectQuery("SELECT count.*FROM pg_stat_statements.*").WillReturnRows(rows)
 			}
 
 			if tt.verErr != nil {
@@ -483,6 +483,12 @@ func TestCollector_ProbeExtensions(t *testing.T) {
 			} else if tt.availErr == nil {
 				rows := sqlmock.NewRows([]string{"version_num"}).AddRow(tt.ver)
 				mock.ExpectQuery("SHOW server_version_num").WillReturnRows(rows)
+			}
+
+			// Replication probe — always expect it after version detection succeeds.
+			if tt.availErr == nil && tt.verErr == nil {
+				replRows := sqlmock.NewRows([]string{"col_exists"}).AddRow(1)
+				mock.ExpectQuery("SELECT 1 FROM information_schema.columns.*").WillReturnRows(replRows)
 			}
 
 			c := New(q, m, cfg)

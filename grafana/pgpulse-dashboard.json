@@ -84,6 +84,79 @@
           "mappings": [
             {
               "options": {
+                "primary": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "PRIMARY"
+                },
+                "replica": {
+                  "color": "blue",
+                  "index": 1,
+                  "text": "REPLICA"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 21,
+        "y": 1
+      },
+      "id": 130,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "title": "Node Role",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "pg_node_role{instance=~\"$instance\"} == 1",
+          "legendFormat": "{{ role }}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          }
+        }
+      ],
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "valueLabel": "role"
+          }
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
                 "0": {
                   "text": "DOWN"
                 },
@@ -503,7 +576,7 @@
         "h": 4,
         "w": 3,
         "x": 21,
-        "y": 1
+        "y": 5
       },
       "id": 8,
       "options": {
@@ -2777,7 +2850,44 @@
     "patroni"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(pg_up, instance)",
+        "includeAll": true,
+        "multi": true,
+        "name": "instance",
+        "query": "label_values(pg_up, instance)",
+        "refresh": 2,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(pg_node_role, role)",
+        "includeAll": true,
+        "multi": true,
+        "name": "role",
+        "query": "label_values(pg_node_role, role)",
+        "refresh": 2,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-1h",
@@ -2787,5 +2897,5 @@
   "timezone": "browser",
   "title": "pgpulse \u2014 PostgreSQL Pulse",
   "uid": "pgpulse-main",
-  "version": 3
+  "version": 4
 }

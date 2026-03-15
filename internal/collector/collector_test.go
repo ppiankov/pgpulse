@@ -485,12 +485,6 @@ func TestCollector_ProbeExtensions(t *testing.T) {
 				mock.ExpectQuery("SHOW server_version_num").WillReturnRows(rows)
 			}
 
-			// Replication probe — always expect it after version detection succeeds.
-			if tt.availErr == nil && tt.verErr == nil {
-				replRows := sqlmock.NewRows([]string{"col_exists"}).AddRow(1)
-				mock.ExpectQuery("SELECT 1 FROM information_schema.columns.*").WillReturnRows(replRows)
-			}
-
 			c := New(q, m, cfg)
 			c.ProbeExtensions(context.Background())
 

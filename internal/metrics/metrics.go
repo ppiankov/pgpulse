@@ -72,6 +72,9 @@ type Metrics struct {
 	CheckpointsTimedTotal     prometheus.Gauge
 	CheckpointsRequestedTotal prometheus.Gauge
 	BuffersCheckpoint         prometheus.Gauge
+
+	// Node role
+	NodeRole *prometheus.GaugeVec
 }
 
 func New(reg prometheus.Registerer) *Metrics {
@@ -293,6 +296,12 @@ func New(reg prometheus.Registerer) *Metrics {
 			Name: "pg_buffers_checkpoint",
 			Help: "Buffers written during checkpoints.",
 		}),
+
+		// Node role
+		NodeRole: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_node_role",
+			Help: "PostgreSQL node role (1 for current role: primary or replica).",
+		}, []string{"role"}),
 	}
 
 	reg.MustRegister(
@@ -345,6 +354,7 @@ func New(reg prometheus.Registerer) *Metrics {
 		m.CheckpointsTimedTotal,
 		m.CheckpointsRequestedTotal,
 		m.BuffersCheckpoint,
+		m.NodeRole,
 	)
 
 	return m

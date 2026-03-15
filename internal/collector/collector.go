@@ -17,7 +17,6 @@ type Collector struct {
 	useV13              bool
 	hasPG14             bool
 	hasPG17             bool
-	hasReplication      bool
 	prevStmts           map[string]stmtSnapshot
 	regressionThreshold float64
 	prevWalBytes        float64
@@ -50,7 +49,7 @@ func (c *Collector) ProbeExtensions(ctx context.Context) {
 		c.hasStmt = true
 	}
 
-	// Detect PG version for correct column names
+	// Detect PG version for correct column names.
 	row = c.db.QueryRowContext(ctx, "SHOW server_version_num")
 	var versionNum int
 	if err := row.Scan(&versionNum); err != nil {
@@ -62,17 +61,6 @@ func (c *Collector) ProbeExtensions(ctx context.Context) {
 	c.hasPG14 = versionNum >= 140000
 	c.hasPG17 = versionNum >= 170000
 	log.Printf("PostgreSQL version %d detected, pg_stat_statements v13 columns: %v", versionNum, c.useV13)
-
-	// Probe replication view access by checking column existence.
-	var colExists int
-	probeErr := c.db.QueryRowContext(ctx,
-		"SELECT 1 FROM information_schema.columns WHERE table_name = 'pg_stat_replication' AND column_name = 'slot_name'").Scan(&colExists)
-	if probeErr != nil {
-		log.Printf("pg_stat_replication not accessible, replication metrics will be skipped: %v", probeErr)
-		c.hasReplication = false
-	} else {
-		c.hasReplication = true
-	}
 }
 
 func (c *Collector) Run(ctx context.Context) {
@@ -94,6 +82,20 @@ func (c *Collector) Run(ctx context.Context) {
 
 func (c *Collector) collect(ctx context.Context) {
 	start := time.Now()
+
+	// Detect node role (primary vs replica) each poll to handle failover.
+	var inRecovery bool
+	row := c.db.QueryRowContext(ctx, "SELECT pg_is_in_recovery()")
+	if err := row.Scan(&inRecovery); err != nil {
+		log.Printf("role detection error: %v", err)
+	} else {
+		c.metrics.NodeRole.Reset()
+		if inRecovery {
+			c.metrics.NodeRole.WithLabelValues("replica").Set(1)
+		} else {
+			c.metrics.NodeRole.WithLabelValues("primary").Set(1)
+		}
+	}
 
 	totalConns, err := collectActivity(ctx, c.db, c.metrics, c.cfg.SlowQueryThreshold.Seconds())
 	if err != nil {
@@ -138,7 +140,8 @@ func (c *Collector) collect(ctx context.Context) {
 		}
 	}
 
-	if c.hasReplication {
+	// Replication metrics only on primary (not in recovery).
+	if !inRecovery {
 		if err := collectReplication(ctx, c.db, c.metrics); err != nil {
 			log.Printf("replication collection error: %v", err)
 			c.metrics.ScrapeErrors.Inc()

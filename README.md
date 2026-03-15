@@ -64,6 +64,7 @@ pgpulse auto-detects PostgreSQL version and uses the correct column names (`tota
 | WAL generation rate (`pg_stat_wal`) | 14 | Auto-skipped on older versions |
 | Checkpoint stats (`pg_stat_checkpointer`) | 17 | Falls back to `pg_stat_bgwriter` on older versions |
 | Replication lag (`replay_lag`) | 10 | Graceful skip if not a primary |
+| Node role detection (`pg_is_in_recovery`) | 12 | Auto-detects primary vs replica each poll |
 
 ### Connection string
 
@@ -74,6 +75,52 @@ postgres://pgpulse@hostname:5432/postgres?sslmode=require
 ```
 
 For production, always use `sslmode=require` or `sslmode=verify-full`. Connect to the `postgres` database (or any database where `pg_stat_statements` is installed).
+
+### pgbouncer: connect directly to PostgreSQL
+
+pgpulse **must connect directly to PostgreSQL**, not through pgbouncer or other connection poolers. pgbouncer does not proxy system views (`pg_stat_activity`, `pg_stat_statements`, `pg_locks`, `pg_stat_replication`), so most metrics will fail or return empty results.
+
+| | Direct (port 5432) | pgbouncer (port 6432) |
+|---|---|---|
+| `pg_stat_activity` | works | empty/error |
+| `pg_stat_statements` | works | error |
+| `pg_locks` | works | empty |
+| `pg_stat_replication` | works | error |
+| Database sizes | works | error |
+
+Always point `PG_DSN` at PostgreSQL's native port (default 5432), not the pgbouncer port.
+
+### HA clusters (Patroni, repmgr, Stolon)
+
+pgpulse auto-detects whether each target is a **primary** or **replica** by querying `pg_is_in_recovery()` every poll cycle. This means:
+
+- Specify **all nodes** as separate targets — pgpulse figures out the roles
+- **Failover is automatic** — if Patroni promotes a replica, the `pg_node_role` metric flips on the next poll
+- The `pg_node_role{role="primary|replica"}` metric lets you filter and compare nodes in Grafana
+- **Replication metrics** are only collected on the primary (auto-skipped on replicas)
+- All other metrics (activity, vacuum, bloat, locks, etc.) are collected on every node
+
+Example for a 3-node Patroni cluster:
+
+```bash
+# Binary — one pgpulse per node
+PG_DSN="postgres://pgpulse@node1:5432/postgres" ./bin/pgpulse serve
+PG_DSN="postgres://pgpulse@node2:5432/postgres" ./bin/pgpulse serve
+PG_DSN="postgres://pgpulse@node3:5432/postgres" ./bin/pgpulse serve
+
+# Helm — all nodes as targets
+helm install pgpulse charts/pgpulse/ \
+  --set 'targets[0].name=node1' \
+  --set 'targets[0].dsn=postgres://pgpulse@node1:5432/postgres' \
+  --set 'targets[1].name=node2' \
+  --set 'targets[1].dsn=postgres://pgpulse@node2:5432/postgres' \
+  --set 'targets[2].name=node3' \
+  --set 'targets[2].dsn=postgres://pgpulse@node3:5432/postgres' \
+  --set serviceMonitor.enabled=true \
+  --set serviceMonitor.labels.release=kube-prometheus-stack
+```
+
+In Grafana, use the `instance` and `role` template variables to filter by node or compare primary vs replicas.
 
 ## Quick start
 

@@ -2,8 +2,8 @@ apiVersion: v2
 name: pgpulse
 description: PostgreSQL Prometheus metrics exporter
 type: application
-version: 0.3.1
-appVersion: "0.3.1"
+version: 0.4.0
+appVersion: "0.4.0"
 home: https://github.com/ppiankov/pgpulse
 sources:
   - https://github.com/ppiankov/pgpulse

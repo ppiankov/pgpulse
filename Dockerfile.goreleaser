@@ -1,0 +1,10 @@
+FROM gcr.io/distroless/static-debian12:nonroot
+
+COPY pgpulse /usr/local/bin/pgpulse
+
+USER nonroot:nonroot
+
+EXPOSE 9187
+
+ENTRYPOINT ["pgpulse"]
+CMD ["serve"]

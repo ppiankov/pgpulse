@@ -1,0 +1,76 @@
+version: 2
+
+project_name: pgpulse
+
+builds:
+  - main: ./cmd/pgpulse/
+    binary: pgpulse
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+      - -X github.com/ppiankov/pgpulse/internal/cli.version={{.Version}}
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+dockers:
+  - image_templates:
+      - "ghcr.io/ppiankov/pgpulse:{{ .Version }}-amd64"
+    dockerfile: Dockerfile.goreleaser
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+    goarch: amd64
+
+  - image_templates:
+      - "ghcr.io/ppiankov/pgpulse:{{ .Version }}-arm64"
+    dockerfile: Dockerfile.goreleaser
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+    goarch: arm64
+
+brews:
+  - repository:
+      owner: ppiankov
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/ppiankov/pgpulse"
+    description: "PostgreSQL metrics exporter for Prometheus"
+    license: MIT
+    install: |
+      bin.install "pgpulse"
+    test: |
+      system "#{bin}/pgpulse", "version"
+
+docker_manifests:
+  - name_template: "ghcr.io/ppiankov/pgpulse:{{ .Version }}"
+    image_templates:
+      - "ghcr.io/ppiankov/pgpulse:{{ .Version }}-amd64"
+      - "ghcr.io/ppiankov/pgpulse:{{ .Version }}-arm64"
+
+  - name_template: "ghcr.io/ppiankov/pgpulse:latest"
+    image_templates:
+      - "ghcr.io/ppiankov/pgpulse:{{ .Version }}-amd64"
+      - "ghcr.io/ppiankov/pgpulse:{{ .Version }}-arm64"

@@ -13,6 +13,8 @@ targets:
     metricsPort: 9187
     pollInterval: "5s"
     slowQueryThreshold: "5s"
+    regressionThreshold: "2.0"
+    stmtLimit: "50"
 
 resources:
   requests:

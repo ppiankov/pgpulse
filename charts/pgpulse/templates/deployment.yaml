@@ -42,6 +42,10 @@ spec:
               value: {{ .pollInterval | default "5s" | quote }}
             - name: SLOW_QUERY_THRESHOLD
               value: {{ .slowQueryThreshold | default "5s" | quote }}
+            - name: REGRESSION_THRESHOLD
+              value: {{ .regressionThreshold | default "2.0" | quote }}
+            - name: STMT_LIMIT
+              value: {{ .stmtLimit | default "50" | quote }}
           ports:
             - name: metrics
               containerPort: {{ .metricsPort | default 9187 }}

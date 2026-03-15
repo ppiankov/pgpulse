@@ -10,18 +10,25 @@ import (
 )
 
 type Collector struct {
-	db      Querier
-	metrics *metrics.Metrics
-	cfg     config.Config
-	hasStmt bool
-	useV13  bool
+	db                  Querier
+	metrics             *metrics.Metrics
+	cfg                 config.Config
+	hasStmt             bool
+	useV13              bool
+	prevStmts           map[string]stmtSnapshot
+	regressionThreshold float64
 }
 
 func New(db Querier, m *metrics.Metrics, cfg config.Config) *Collector {
+	threshold := cfg.RegressionThreshold
+	if threshold <= 0 {
+		threshold = 2.0
+	}
 	return &Collector{
-		db:      db,
-		metrics: m,
-		cfg:     cfg,
+		db:                  db,
+		metrics:             m,
+		cfg:                 cfg,
+		regressionThreshold: threshold,
 	}
 }
 
@@ -85,6 +92,28 @@ func (c *Collector) collect(ctx context.Context) {
 	if c.hasStmt {
 		if err := collectStatements(ctx, c.db, c.metrics, c.useV13); err != nil {
 			log.Printf("statements collection error: %v", err)
+			c.metrics.ScrapeErrors.Inc()
+		}
+	}
+
+	if err := collectVacuum(ctx, c.db, c.metrics); err != nil {
+		log.Printf("vacuum collection error: %v", err)
+		c.metrics.ScrapeErrors.Inc()
+	}
+
+	if err := collectBloat(ctx, c.db, c.metrics); err != nil {
+		log.Printf("bloat collection error: %v", err)
+		c.metrics.ScrapeErrors.Inc()
+	}
+
+	if err := collectLocks(ctx, c.db, c.metrics); err != nil {
+		log.Printf("locks collection error: %v", err)
+		c.metrics.ScrapeErrors.Inc()
+	}
+
+	if c.hasStmt {
+		if err := c.collectRegression(ctx); err != nil {
+			log.Printf("regression collection error: %v", err)
 			c.metrics.ScrapeErrors.Inc()
 		}
 	}

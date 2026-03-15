@@ -19,6 +19,30 @@ type Metrics struct {
 	StmtCalls             *prometheus.GaugeVec
 	StmtMeanTimeSeconds   *prometheus.GaugeVec
 	StmtTotalTimeSeconds  *prometheus.GaugeVec
+
+	// Vacuum (WO-14)
+	DeadTuples              *prometheus.GaugeVec
+	DeadTupleRatio          *prometheus.GaugeVec
+	LastVacuumSeconds       *prometheus.GaugeVec
+	LastAutovacuumSeconds   *prometheus.GaugeVec
+	AutovacuumWorkersActive prometheus.Gauge
+	AutovacuumWorkersMax    prometheus.Gauge
+
+	// Bloat (WO-15)
+	TableTotalBytes *prometheus.GaugeVec
+	TableBytes      *prometheus.GaugeVec
+	IndexBytes      *prometheus.GaugeVec
+	IndexScansTotal *prometheus.GaugeVec
+
+	// Locks (WO-13)
+	LockBlockedQueries prometheus.Gauge
+	LockChainMaxDepth  prometheus.Gauge
+	LockByType         *prometheus.GaugeVec
+
+	// Regression (WO-12)
+	StmtRegressions         prometheus.Gauge
+	StmtMeanTimeChangeRatio *prometheus.GaugeVec
+	StmtCallsDelta          *prometheus.GaugeVec
 }
 
 func New(reg prometheus.Registerer) *Metrics {
@@ -87,6 +111,78 @@ func New(reg prometheus.Registerer) *Metrics {
 			Name: "pg_stat_statements_total_time_seconds",
 			Help: "Total execution time per query in seconds.",
 		}, []string{"query_fingerprint", "usename"}),
+
+		// Vacuum
+		DeadTuples: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_dead_tuples",
+			Help: "Number of dead tuples per table.",
+		}, []string{"table"}),
+		DeadTupleRatio: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_dead_tuple_ratio",
+			Help: "Ratio of dead tuples to total tuples per table.",
+		}, []string{"table"}),
+		LastVacuumSeconds: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_last_vacuum_seconds",
+			Help: "Seconds since last manual vacuum per table (-1 if never).",
+		}, []string{"table"}),
+		LastAutovacuumSeconds: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_last_autovacuum_seconds",
+			Help: "Seconds since last autovacuum per table (-1 if never).",
+		}, []string{"table"}),
+		AutovacuumWorkersActive: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_autovacuum_workers_active",
+			Help: "Number of currently active autovacuum workers.",
+		}),
+		AutovacuumWorkersMax: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_autovacuum_workers_max",
+			Help: "Maximum number of autovacuum workers (autovacuum_max_workers).",
+		}),
+
+		// Bloat
+		TableTotalBytes: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_table_total_bytes",
+			Help: "Total size of table including indexes and toast in bytes.",
+		}, []string{"table"}),
+		TableBytes: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_table_bytes",
+			Help: "Heap size of table in bytes.",
+		}, []string{"table"}),
+		IndexBytes: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_index_bytes",
+			Help: "Size of index in bytes.",
+		}, []string{"index", "table"}),
+		IndexScansTotal: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_index_scans_total",
+			Help: "Cumulative number of index scans.",
+		}, []string{"index", "table"}),
+
+		// Locks
+		LockBlockedQueries: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_lock_blocked_queries",
+			Help: "Number of queries currently blocked by locks.",
+		}),
+		LockChainMaxDepth: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_lock_chain_max_depth",
+			Help: "Maximum depth of lock wait chains.",
+		}),
+		LockByType: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_lock_by_type",
+			Help: "Number of blocked queries by lock type.",
+		}, []string{"lock_type"}),
+
+		// Regression
+		StmtRegressions: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_stmt_regressions",
+			Help: "Number of queries whose mean execution time regressed beyond threshold.",
+		}),
+		StmtMeanTimeChangeRatio: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_stmt_mean_time_change_ratio",
+			Help: "Ratio of current to previous mean execution time per query.",
+		}, []string{"query_fingerprint", "usename"}),
+		StmtCallsDelta: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_stmt_calls_delta",
+			Help: "Change in call count since last poll per query.",
+		}, []string{"query_fingerprint", "usename"}),
 	}
 
 	reg.MustRegister(
@@ -106,6 +202,22 @@ func New(reg prometheus.Registerer) *Metrics {
 		m.StmtCalls,
 		m.StmtMeanTimeSeconds,
 		m.StmtTotalTimeSeconds,
+		m.DeadTuples,
+		m.DeadTupleRatio,
+		m.LastVacuumSeconds,
+		m.LastAutovacuumSeconds,
+		m.AutovacuumWorkersActive,
+		m.AutovacuumWorkersMax,
+		m.TableTotalBytes,
+		m.TableBytes,
+		m.IndexBytes,
+		m.IndexScansTotal,
+		m.LockBlockedQueries,
+		m.LockChainMaxDepth,
+		m.LockByType,
+		m.StmtRegressions,
+		m.StmtMeanTimeChangeRatio,
+		m.StmtCallsDelta,
 	)
 
 	return m

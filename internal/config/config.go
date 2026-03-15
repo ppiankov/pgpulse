@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	DSN                string
-	MetricsPort        int
-	PollInterval       time.Duration
-	SlowQueryThreshold time.Duration
+	DSN                 string
+	MetricsPort         int
+	PollInterval        time.Duration
+	SlowQueryThreshold  time.Duration
+	RegressionThreshold float64
 }
 
 func Load() (Config, error) {
@@ -50,10 +51,20 @@ func Load() (Config, error) {
 		slowThreshold = d
 	}
 
+	regressionThreshold := 2.0
+	if v := os.Getenv("REGRESSION_THRESHOLD"); v != "" {
+		r, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			return Config{}, fmt.Errorf("invalid REGRESSION_THRESHOLD: %w", err)
+		}
+		regressionThreshold = r
+	}
+
 	return Config{
-		DSN:                dsn,
-		MetricsPort:        port,
-		PollInterval:       pollInterval,
-		SlowQueryThreshold: slowThreshold,
+		DSN:                 dsn,
+		MetricsPort:         port,
+		PollInterval:        pollInterval,
+		SlowQueryThreshold:  slowThreshold,
+		RegressionThreshold: regressionThreshold,
 	}, nil
 }

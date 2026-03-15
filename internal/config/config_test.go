@@ -24,10 +24,11 @@ func TestLoadConfig(t *testing.T) {
 				"PG_DSN": "postgres://localhost:5432/db",
 			},
 			want: config.Config{
-				DSN:                "postgres://localhost:5432/db",
-				MetricsPort:        9187,
-				PollInterval:       5 * time.Second,
-				SlowQueryThreshold: 5 * time.Second,
+				DSN:                 "postgres://localhost:5432/db",
+				MetricsPort:         9187,
+				PollInterval:        5 * time.Second,
+				SlowQueryThreshold:  5 * time.Second,
+				RegressionThreshold: 2.0,
 			},
 		},
 		{
@@ -39,10 +40,11 @@ func TestLoadConfig(t *testing.T) {
 				"SLOW_QUERY_THRESHOLD": "30s",
 			},
 			want: config.Config{
-				DSN:                "postgres://localhost:5432/custom",
-				MetricsPort:        8080,
-				PollInterval:       10 * time.Second,
-				SlowQueryThreshold: 30 * time.Second,
+				DSN:                 "postgres://localhost:5432/custom",
+				MetricsPort:         8080,
+				PollInterval:        10 * time.Second,
+				SlowQueryThreshold:  30 * time.Second,
+				RegressionThreshold: 2.0,
 			},
 		},
 		{
@@ -51,10 +53,11 @@ func TestLoadConfig(t *testing.T) {
 				"DATABASE_URL": "postgres://localhost:5432/fallback",
 			},
 			want: config.Config{
-				DSN:                "postgres://localhost:5432/fallback",
-				MetricsPort:        9187,
-				PollInterval:       5 * time.Second,
-				SlowQueryThreshold: 5 * time.Second,
+				DSN:                 "postgres://localhost:5432/fallback",
+				MetricsPort:         9187,
+				PollInterval:        5 * time.Second,
+				SlowQueryThreshold:  5 * time.Second,
+				RegressionThreshold: 2.0,
 			},
 		},
 		{

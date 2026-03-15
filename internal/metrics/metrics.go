@@ -43,6 +43,33 @@ type Metrics struct {
 	StmtRegressions         prometheus.Gauge
 	StmtMeanTimeChangeRatio *prometheus.GaugeVec
 	StmtCallsDelta          *prometheus.GaugeVec
+
+	// WAL (WO-16)
+	WalBytesTotal     prometheus.Gauge
+	WalBytesPerSecond prometheus.Gauge
+
+	// Replication (WO-17)
+	ReplicationLagBytes          *prometheus.GaugeVec
+	ReplicationLagSeconds        *prometheus.GaugeVec
+	ReplicationConnectedReplicas prometheus.Gauge
+
+	// Connection lifecycle (WO-18)
+	IdleConnections            prometheus.Gauge
+	IdleConnectionSecondsTotal prometheus.Gauge
+	ConnectionAgeSeconds       prometheus.Histogram
+
+	// Prediction (WO-19)
+	ConnectionsExhaustionHours prometheus.Gauge
+
+	// Table stats (WO-20)
+	TableSeqScanRatio *prometheus.GaugeVec
+	TableSeqScans     *prometheus.GaugeVec
+	TableIndexScans   *prometheus.GaugeVec
+
+	// Checkpoint (WO-21)
+	CheckpointsTimedTotal     prometheus.Gauge
+	CheckpointsRequestedTotal prometheus.Gauge
+	BuffersCheckpoint         prometheus.Gauge
 }
 
 func New(reg prometheus.Registerer) *Metrics {
@@ -183,6 +210,79 @@ func New(reg prometheus.Registerer) *Metrics {
 			Name: "pg_stmt_calls_delta",
 			Help: "Change in call count since last poll per query.",
 		}, []string{"query_fingerprint", "usename"}),
+
+		// WAL
+		WalBytesTotal: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_wal_bytes_total",
+			Help: "Total WAL bytes generated.",
+		}),
+		WalBytesPerSecond: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_wal_bytes_per_second",
+			Help: "WAL generation rate in bytes per second.",
+		}),
+
+		// Replication
+		ReplicationLagBytes: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_replication_lag_bytes",
+			Help: "Replication lag in bytes per replica.",
+		}, []string{"slot", "client_addr"}),
+		ReplicationLagSeconds: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_replication_lag_seconds",
+			Help: "Replication lag in seconds per replica.",
+		}, []string{"slot", "client_addr"}),
+		ReplicationConnectedReplicas: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_replication_connected_replicas",
+			Help: "Number of connected streaming replicas.",
+		}),
+
+		// Connection lifecycle
+		IdleConnections: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_idle_connections",
+			Help: "Number of idle connections.",
+		}),
+		IdleConnectionSecondsTotal: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_idle_connection_seconds_total",
+			Help: "Sum of idle time across all idle connections.",
+		}),
+		ConnectionAgeSeconds: prometheus.NewHistogram(prometheus.HistogramOpts{
+			Name:    "pg_connection_age_seconds",
+			Help:    "Distribution of connection ages in seconds.",
+			Buckets: []float64{1, 10, 60, 300, 900, 3600},
+		}),
+
+		// Prediction
+		ConnectionsExhaustionHours: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_connections_exhaustion_hours",
+			Help: "Predicted hours until max_connections is exhausted (-1 if stable or declining).",
+		}),
+
+		// Table stats
+		TableSeqScanRatio: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_table_seq_scan_ratio",
+			Help: "Ratio of sequential scans to total scans per table.",
+		}, []string{"table"}),
+		TableSeqScans: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_table_seq_scans",
+			Help: "Cumulative sequential scans per table.",
+		}, []string{"table"}),
+		TableIndexScans: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_table_index_scans",
+			Help: "Cumulative index scans per table.",
+		}, []string{"table"}),
+
+		// Checkpoint
+		CheckpointsTimedTotal: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_checkpoints_timed_total",
+			Help: "Number of scheduled checkpoints.",
+		}),
+		CheckpointsRequestedTotal: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_checkpoints_requested_total",
+			Help: "Number of requested checkpoints.",
+		}),
+		BuffersCheckpoint: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_buffers_checkpoint",
+			Help: "Buffers written during checkpoints.",
+		}),
 	}
 
 	reg.MustRegister(
@@ -218,6 +318,21 @@ func New(reg prometheus.Registerer) *Metrics {
 		m.StmtRegressions,
 		m.StmtMeanTimeChangeRatio,
 		m.StmtCallsDelta,
+		m.WalBytesTotal,
+		m.WalBytesPerSecond,
+		m.ReplicationLagBytes,
+		m.ReplicationLagSeconds,
+		m.ReplicationConnectedReplicas,
+		m.IdleConnections,
+		m.IdleConnectionSecondsTotal,
+		m.ConnectionAgeSeconds,
+		m.ConnectionsExhaustionHours,
+		m.TableSeqScanRatio,
+		m.TableSeqScans,
+		m.TableIndexScans,
+		m.CheckpointsTimedTotal,
+		m.CheckpointsRequestedTotal,
+		m.BuffersCheckpoint,
 	)
 
 	return m

@@ -15,8 +15,13 @@ type Collector struct {
 	cfg                 config.Config
 	hasStmt             bool
 	useV13              bool
+	hasPG14             bool
+	hasPG17             bool
 	prevStmts           map[string]stmtSnapshot
 	regressionThreshold float64
+	prevWalBytes        float64
+	prevWalTime         time.Time
+	connHistory         []connSample
 }
 
 func New(db Querier, m *metrics.Metrics, cfg config.Config) *Collector {
@@ -52,6 +57,8 @@ func (c *Collector) ProbeExtensions(ctx context.Context) {
 		return
 	}
 	c.useV13 = versionNum >= 130000
+	c.hasPG14 = versionNum >= 140000
+	c.hasPG17 = versionNum >= 170000
 	log.Printf("PostgreSQL version %d detected, pg_stat_statements v13 columns: %v", versionNum, c.useV13)
 }
 
@@ -117,6 +124,35 @@ func (c *Collector) collect(ctx context.Context) {
 			c.metrics.ScrapeErrors.Inc()
 		}
 	}
+
+	if err := collectReplication(ctx, c.db, c.metrics); err != nil {
+		log.Printf("replication collection error: %v", err)
+		c.metrics.ScrapeErrors.Inc()
+	}
+
+	if err := collectConnLifecycle(ctx, c.db, c.metrics); err != nil {
+		log.Printf("connection lifecycle collection error: %v", err)
+		c.metrics.ScrapeErrors.Inc()
+	}
+
+	if err := collectTableStats(ctx, c.db, c.metrics); err != nil {
+		log.Printf("table stats collection error: %v", err)
+		c.metrics.ScrapeErrors.Inc()
+	}
+
+	if c.hasPG14 {
+		if err := c.collectWAL(ctx); err != nil {
+			log.Printf("WAL collection error: %v", err)
+			c.metrics.ScrapeErrors.Inc()
+		}
+	}
+
+	if err := c.collectCheckpoint(ctx); err != nil {
+		log.Printf("checkpoint collection error: %v", err)
+		c.metrics.ScrapeErrors.Inc()
+	}
+
+	c.collectPrediction(ctx, totalConns)
 
 	c.metrics.Up.Set(1)
 	c.metrics.ScrapeDuration.Set(time.Since(start).Seconds())

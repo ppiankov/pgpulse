@@ -1,0 +1,13 @@
+{{- if .Values.dashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pgpulse.fullname" . }}-dashboard
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pgpulse.labels" . | nindent 4 }}
+    grafana_dashboard: "1"
+data:
+  pgpulse.json: |-
+    {{- .Files.Get "dashboards/pgpulse.json" | nindent 4 }}
+{{- end }}

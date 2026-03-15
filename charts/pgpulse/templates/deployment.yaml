@@ -1,0 +1,82 @@
+{{- range .Values.targets }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pgpulse.targetFullname" (dict "root" $ "target" .) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "pgpulse.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ .name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "pgpulse.selectorLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: {{ .name }}
+  template:
+    metadata:
+      labels:
+        {{- include "pgpulse.selectorLabels" $ | nindent 8 }}
+        app.kubernetes.io/component: {{ .name }}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: pgpulse
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          env:
+            - name: PG_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .existingSecret | default (include "pgpulse.targetFullname" (dict "root" $ "target" .)) }}
+                  key: PG_DSN
+            - name: METRICS_PORT
+              value: {{ .metricsPort | default 9187 | quote }}
+            - name: POLL_INTERVAL
+              value: {{ .pollInterval | default "5s" | quote }}
+            - name: SLOW_QUERY_THRESHOLD
+              value: {{ .slowQueryThreshold | default "5s" | quote }}
+          ports:
+            - name: metrics
+              containerPort: {{ .metricsPort | default 9187 }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          {{- with $.Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

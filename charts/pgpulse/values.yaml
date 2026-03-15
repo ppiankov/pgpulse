@@ -1,0 +1,45 @@
+image:
+  repository: ghcr.io/ppiankov/pgpulse
+  tag: ""  # defaults to appVersion
+  pullPolicy: IfNotPresent
+
+# Each target creates its own Deployment, Secret, and Service.
+# Target names must be DNS-compatible (lowercase alphanumeric + hyphens).
+targets:
+  - name: primary
+    # Set dsn OR existingSecret (not both).
+    dsn: ""
+    existingSecret: ""  # name of existing Secret with PG_DSN key
+    metricsPort: 9187
+    pollInterval: "5s"
+    slowQueryThreshold: "5s"
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+# Prometheus ServiceMonitor (requires prometheus-operator).
+serviceMonitor:
+  enabled: true
+  interval: "30s"
+  scrapeTimeout: ""
+  # Additional labels for ServiceMonitor selection (e.g. release: kube-prometheus-stack).
+  labels: {}
+
+# PrometheusRule alerts (requires prometheus-operator).
+prometheusRule:
+  enabled: false
+  # Additional labels for PrometheusRule selection.
+  labels: {}
+
+# Grafana dashboard ConfigMap (requires Grafana sidecar).
+dashboard:
+  enabled: true
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

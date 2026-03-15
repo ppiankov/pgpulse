@@ -1,0 +1,21 @@
+{{- range .Values.targets }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "pgpulse.targetFullname" (dict "root" $ "target" .) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "pgpulse.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ .name }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "pgpulse.selectorLabels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ .name }}
+  ports:
+    - name: metrics
+      port: {{ .metricsPort | default 9187 }}
+      targetPort: metrics
+      protocol: TCP
+{{- end }}

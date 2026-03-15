@@ -1,0 +1,60 @@
+{{- if .Values.prometheusRule.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "pgpulse.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pgpulse.labels" . | nindent 4 }}
+    {{- with .Values.prometheusRule.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  groups:
+    - name: pgpulse
+      rules:
+        - alert: PgPulseDown
+          expr: pg_up == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PostgreSQL is unreachable"
+            description: "pgpulse cannot connect to PostgreSQL (pg_up == 0 for 5 minutes)."
+
+        - alert: PgSlowQueriesHigh
+          expr: pg_slow_queries > 5
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High number of slow queries"
+            description: "{{ "{{" }} $value {{ "}}" }} queries running longer than the configured threshold."
+
+        - alert: PgConnectionsExhausting
+          expr: pg_connections_used_ratio > 0.8
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Connection pool nearing exhaustion"
+            description: "{{ "{{" }} $value | humanizePercentage {{ "}}" }} of max_connections in use."
+
+        - alert: PgLongestQueryTooLong
+          expr: pg_longest_query_seconds > 300
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Query running longer than 5 minutes"
+            description: "Longest active query has been running for {{ "{{" }} $value | humanizeDuration {{ "}}" }}."
+
+        - alert: PgScrapeErrors
+          expr: rate(pg_scrape_errors_total[5m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "pgpulse scrape errors"
+            description: "pgpulse is encountering errors collecting metrics from PostgreSQL."
+{{- end }}

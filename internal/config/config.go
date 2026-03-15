@@ -13,6 +13,7 @@ type Config struct {
 	PollInterval        time.Duration
 	SlowQueryThreshold  time.Duration
 	RegressionThreshold float64
+	StmtLimit           int
 }
 
 func Load() (Config, error) {
@@ -60,11 +61,21 @@ func Load() (Config, error) {
 		regressionThreshold = r
 	}
 
+	stmtLimit := 50
+	if v := os.Getenv("STMT_LIMIT"); v != "" {
+		s, err := strconv.Atoi(v)
+		if err != nil {
+			return Config{}, fmt.Errorf("invalid STMT_LIMIT: %w", err)
+		}
+		stmtLimit = s
+	}
+
 	return Config{
 		DSN:                 dsn,
 		MetricsPort:         port,
 		PollInterval:        pollInterval,
 		SlowQueryThreshold:  slowThreshold,
 		RegressionThreshold: regressionThreshold,
+		StmtLimit:           stmtLimit,
 	}, nil
 }

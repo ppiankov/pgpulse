@@ -12,10 +12,11 @@ type stmtSnapshot struct {
 }
 
 func (c *Collector) collectRegression(ctx context.Context) error {
-	query := statementsQueryV12
+	orderBy := "total_time"
 	if c.useV13 {
-		query = statementsQueryV13
+		orderBy = "total_exec_time"
 	}
+	query := stmtQuery(c.useV13, orderBy, c.cfg.StmtLimit)
 
 	rows, err := c.db.QueryContext(ctx, query)
 	if err != nil {

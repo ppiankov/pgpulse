@@ -346,25 +346,31 @@ func TestCollectStatements(t *testing.T) {
 
 			if tt.wantError {
 				mock.ExpectQuery("SELECT LEFT.*FROM pg_stat_statements.*").WillReturnError(errors.New("query failed"))
-				err := collectStatements(ctx, q, m, tt.useV13)
+				err := collectStatements(ctx, q, m, tt.useV13, 50)
 				if err == nil {
 					t.Fatal("expected error")
 				}
 				return
 			}
 
+			stmtCols := []string{"query_fingerprint", "usename", "calls", "mean_exec_time_seconds", "total_exec_time_seconds"}
+			emptyStmtRows := func() *sqlmock.Rows { return sqlmock.NewRows(stmtCols) }
+
 			if tt.name == "v13 query" {
-				rows := sqlmock.NewRows([]string{"query_fingerprint", "usename", "calls", "mean_exec_time_seconds", "total_exec_time_seconds"}).
+				rows := sqlmock.NewRows(stmtCols).
 					AddRow("SELECT * FROM test", "user1", 100, 0.5, 50.0).
 					AddRow("INSERT INTO test", "user2", 50, 0.2, 10.0)
 				mock.ExpectQuery("SELECT LEFT.*FROM pg_stat_statements.*").WillReturnRows(rows)
 			} else {
-				rows := sqlmock.NewRows([]string{"query_fingerprint", "usename", "calls", "mean_exec_time_seconds", "total_exec_time_seconds"}).
+				rows := sqlmock.NewRows(stmtCols).
 					AddRow("SELECT * FROM test", "user1", 100, 0.5, 50.0)
 				mock.ExpectQuery("SELECT LEFT.*FROM pg_stat_statements.*").WillReturnRows(rows)
 			}
+			// Two additional dimension queries (top-by-calls, top-by-mean-time).
+			mock.ExpectQuery("SELECT LEFT.*FROM pg_stat_statements.*").WillReturnRows(emptyStmtRows())
+			mock.ExpectQuery("SELECT LEFT.*FROM pg_stat_statements.*").WillReturnRows(emptyStmtRows())
 
-			err := collectStatements(ctx, q, m, tt.useV13)
+			err := collectStatements(ctx, q, m, tt.useV13, 50)
 			if err != nil {
 				t.Fatalf("collectStatements failed: %v", err)
 			}

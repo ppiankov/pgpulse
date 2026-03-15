@@ -19,6 +19,8 @@ type Metrics struct {
 	StmtCalls             *prometheus.GaugeVec
 	StmtMeanTimeSeconds   *prometheus.GaugeVec
 	StmtTotalTimeSeconds  *prometheus.GaugeVec
+	StmtTopByCalls        *prometheus.GaugeVec
+	StmtTopByMeanTime     *prometheus.GaugeVec
 
 	// Vacuum (WO-14)
 	DeadTuples              *prometheus.GaugeVec
@@ -137,6 +139,14 @@ func New(reg prometheus.Registerer) *Metrics {
 		StmtTotalTimeSeconds: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: "pg_stat_statements_total_time_seconds",
 			Help: "Total execution time per query in seconds.",
+		}, []string{"query_fingerprint", "usename"}),
+		StmtTopByCalls: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_stat_statements_top_by_calls",
+			Help: "Call count for top queries ordered by calls.",
+		}, []string{"query_fingerprint", "usename"}),
+		StmtTopByMeanTime: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_stat_statements_top_by_mean_time_seconds",
+			Help: "Mean execution time for top queries ordered by mean time.",
 		}, []string{"query_fingerprint", "usename"}),
 
 		// Vacuum
@@ -302,6 +312,8 @@ func New(reg prometheus.Registerer) *Metrics {
 		m.StmtCalls,
 		m.StmtMeanTimeSeconds,
 		m.StmtTotalTimeSeconds,
+		m.StmtTopByCalls,
+		m.StmtTopByMeanTime,
 		m.DeadTuples,
 		m.DeadTupleRatio,
 		m.LastVacuumSeconds,

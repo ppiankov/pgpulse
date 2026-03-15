@@ -29,6 +29,7 @@ func TestLoadConfig(t *testing.T) {
 				PollInterval:        5 * time.Second,
 				SlowQueryThreshold:  5 * time.Second,
 				RegressionThreshold: 2.0,
+				StmtLimit:           50,
 			},
 		},
 		{
@@ -45,6 +46,7 @@ func TestLoadConfig(t *testing.T) {
 				PollInterval:        10 * time.Second,
 				SlowQueryThreshold:  30 * time.Second,
 				RegressionThreshold: 2.0,
+				StmtLimit:           50,
 			},
 		},
 		{
@@ -58,6 +60,7 @@ func TestLoadConfig(t *testing.T) {
 				PollInterval:        5 * time.Second,
 				SlowQueryThreshold:  5 * time.Second,
 				RegressionThreshold: 2.0,
+				StmtLimit:           50,
 			},
 		},
 		{

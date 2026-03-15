@@ -97,7 +97,7 @@ func (c *Collector) collect(ctx context.Context) {
 	}
 
 	if c.hasStmt {
-		if err := collectStatements(ctx, c.db, c.metrics, c.useV13); err != nil {
+		if err := collectStatements(ctx, c.db, c.metrics, c.useV13, c.cfg.StmtLimit); err != nil {
 			log.Printf("statements collection error: %v", err)
 			c.metrics.ScrapeErrors.Inc()
 		}

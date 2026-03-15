@@ -1,0 +1,21 @@
+[Unit]
+Description=pgpulse PostgreSQL metrics exporter
+Documentation=https://github.com/ppiankov/pgpulse
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pgpulse serve
+EnvironmentFile=/etc/pgpulse/pgpulse.env
+Restart=on-failure
+RestartSec=5s
+
+DynamicUser=yes
+ProtectSystem=strict
+ProtectHome=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

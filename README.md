@@ -40,6 +40,23 @@ docker run -e PG_DSN="postgres://localhost/mydb" -p 9187:9187 pgpulse:dev
 
 Metrics are available at `http://localhost:9187/metrics`, health check at `/healthz`.
 
+### systemd
+
+```bash
+# Install binary
+sudo cp bin/pgpulse /usr/local/bin/
+
+# Install unit file and environment config
+sudo cp deploy/pgpulse.service /etc/systemd/system/
+sudo mkdir -p /etc/pgpulse
+sudo cp deploy/pgpulse.env.example /etc/pgpulse/pgpulse.env
+sudo chmod 600 /etc/pgpulse/pgpulse.env
+
+# Edit PG_DSN in /etc/pgpulse/pgpulse.env, then:
+sudo systemctl daemon-reload
+sudo systemctl enable --now pgpulse
+```
+
 ## Configuration
 
 All configuration is via environment variables:
@@ -89,6 +106,9 @@ internal/
   metrics/                    Prometheus metric definitions
 grafana/
   pgpulse-dashboard.json      Importable Grafana dashboard
+deploy/
+  pgpulse.service             systemd unit file
+  pgpulse.env.example         Environment file template
 ```
 
 ## Grafana dashboard

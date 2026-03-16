@@ -69,5 +69,12 @@ func (c *Collector) collectPrediction(ctx context.Context, totalConns int) {
 	}
 
 	hours := remaining / slope / 3600
+
+	// Cap at 720 hours (30 days). Beyond that the prediction is meaningless noise.
+	if hours > 720 {
+		c.metrics.ConnectionsExhaustionHours.Set(-1)
+		return
+	}
+
 	c.metrics.ConnectionsExhaustionHours.Set(hours)
 }

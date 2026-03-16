@@ -10,4 +10,6 @@ metadata:
 data:
   pgpulse.json: |-
     {{- .Files.Get "dashboards/pgpulse.json" | nindent 4 }}
+  pgpulse-executive.json: |-
+    {{- .Files.Get "dashboards/pgpulse-executive.json" | nindent 4 }}
 {{- end }}

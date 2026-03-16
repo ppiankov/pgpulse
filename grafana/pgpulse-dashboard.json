@@ -2507,8 +2507,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 0.1
               },
               {
                 "color": "yellow",
@@ -2520,7 +2528,21 @@
               }
             ]
           },
-          "unit": "h"
+          "unit": "h",
+          "mappings": [
+            {
+              "options": {
+                "from": -2,
+                "to": -0.5,
+                "result": {
+                  "text": "STABLE",
+                  "color": "green",
+                  "index": 0
+                }
+              },
+              "type": "range"
+            }
+          ]
         },
         "overrides": []
       },
@@ -2897,5 +2919,5 @@
   "timezone": "browser",
   "title": "pgpulse \u2014 PostgreSQL Pulse",
   "uid": "pgpulse-main",
-  "version": 6
+  "version": 7
 }

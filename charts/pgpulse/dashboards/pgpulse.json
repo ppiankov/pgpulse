@@ -902,11 +902,11 @@
           "sortDesc": true
         }
       },
-      "title": "Top 10 Queries by Burn Rate (total_time/sec)",
+      "title": "Top 10 Queries by Total Time",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "topk(10, rate(pg_stat_statements_total_time_seconds[5m]))",
+          "expr": "topk(10, pg_stat_statements_total_time_seconds)",
           "legendFormat": "{{ query_fingerprint }} ({{ usename }})",
           "datasource": {
             "type": "prometheus",
@@ -2843,5 +2843,5 @@
   "timezone": "browser",
   "title": "pgpulse \u2014 PostgreSQL Pulse",
   "uid": "pgpulse-main",
-  "version": 4
+  "version": 5
 }

@@ -913,7 +913,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Cumulative CPU time since pg_stat_statements reset. High total time = optimize this query or reduce call frequency. Pair with mean time and call count to decide: high total + low mean = too many calls; high total + high mean = slow query."
     },
     {
       "datasource": {
@@ -1023,7 +1024,8 @@
             }
           }
         }
-      ]
+      ],
+      "description": "Full table of top statements. Sort by Total (s) to find biggest CPU consumers. The Query column shows the fingerprint \u2014 match it to your application code."
     },
     {
       "datasource": {
@@ -1069,7 +1071,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Average time per single execution. Queries here are individually slow \u2014 check EXPLAIN plans, missing indexes, or inefficient joins."
     },
     {
       "datasource": {
@@ -1114,7 +1117,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Most frequently called queries. Even if each call is fast, high frequency burns CPU. Consider caching, batching, or reducing poll frequency."
     },
     {
       "collapsed": false,
@@ -1541,7 +1545,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Tables accumulating dead rows. High dead tuples = autovacuum can't keep up. Check autovacuum settings or run manual VACUUM on the worst tables."
     },
     {
       "datasource": {
@@ -1586,7 +1591,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Ratio of dead to total tuples. Above 20% = significant bloat affecting query performance. Priority: tables with both high ratio AND high absolute dead tuples."
     },
     {
       "datasource": {
@@ -2014,7 +2020,7 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 117
       },
@@ -2040,7 +2046,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Queries whose mean execution time increased by more than the threshold (default 2x) between poll cycles. Non-zero = something got slower \u2014 check recent deployments or data growth."
     },
     {
       "datasource": {
@@ -2084,7 +2091,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Ratio of current mean time to previous mean time. Values > 2.0 triggered a regression alert. Look for the highest ratios \u2014 those queries degraded the most."
     },
     {
       "datasource": {
@@ -2128,7 +2136,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Change in call count between poll cycles. Spikes = sudden increase in query frequency. Useful for spotting runaway background jobs or N+1 queries."
     },
     {
       "collapsed": false,
@@ -2366,7 +2375,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
+        "w": 24,
         "x": 0,
         "y": 151
       },
@@ -2415,8 +2424,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 4,
+        "w": 24,
+        "x": 0,
         "y": 151
       },
       "id": 95,
@@ -2537,7 +2546,7 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 155
       },
@@ -2563,7 +2572,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Connections sitting idle. If consistently high relative to max_connections, your connection pool is oversized or connections aren't being returned properly."
     },
     {
       "datasource": {
@@ -2665,7 +2675,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Tables where most reads are sequential scans instead of index scans. 100% = every read is a full table scan. Add indexes on frequently filtered columns."
     },
     {
       "datasource": {
@@ -2683,8 +2694,8 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 12,
-        "x": 12,
+        "w": 24,
+        "x": 0,
         "y": 164
       },
       "id": 120,
@@ -2717,7 +2728,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Timed = scheduled checkpoints (good). Requested = forced by WAL pressure (bad if frequent). If requested > 0 frequently, increase checkpoint_completion_target or max_wal_size."
     },
     {
       "datasource": {
@@ -2764,7 +2776,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "Absolute count of sequential scans. High and rising = growing tables being scanned without indexes. Priority: tables with both high seq scans AND high seq scan ratio."
     },
     {
       "datasource": {
@@ -2782,8 +2795,8 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 12,
-        "x": 12,
+        "w": 24,
+        "x": 0,
         "y": 172
       },
       "id": 122,
@@ -2808,7 +2821,8 @@
             "uid": ""
           }
         }
-      ]
+      ],
+      "description": "How much data is flushed to disk at each checkpoint. Steadily growing = more write activity. Spikes = bulk operations or missing autovacuum."
     }
   ],
   "schemaVersion": 38,
@@ -2865,5 +2879,5 @@
   "timezone": "browser",
   "title": "pgpulse \u2014 PostgreSQL Pulse",
   "uid": "pgpulse-main",
-  "version": 7
+  "version": 8
 }

@@ -481,7 +481,7 @@
           "refId": "G"
         },
         {
-          "expr": "label_replace(pg_node_role{instance=~\"$instance\"} == 1, \"__value__\", \"$1\", \"role\", \"(.+)\")",
+          "expr": "pg_node_role{instance=~\"$instance\"} == 1",
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
@@ -525,16 +525,21 @@
               "Time 8": true,
               "Time 9": true,
               "__name__": true,
+              "__name__ 1": true,
+              "__name__ 2": true,
               "job": true,
+              "job 1": true,
+              "job 2": true,
               "container": true,
               "endpoint": true,
               "namespace": true,
               "pod": true,
               "service": true,
-              "role": true,
               "datname": true,
               "state": true,
-              "usename": true
+              "usename": true,
+              "Value #H": true,
+              "__value__": true
             },
             "renameByName": {
               "instance": "Instance",
@@ -545,7 +550,7 @@
               "Value #E": "Longest (s)",
               "Value #F": "Conn %",
               "Value #G": "Max Conn",
-              "Value #H": "Role",
+              "role": "Role",
               "Value #I": "Scrape (ms)"
             },
             "indexByName": {
@@ -2429,7 +2434,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 100
+                "value": 120
               },
               {
                 "id": "mappings",
@@ -2930,5 +2935,5 @@
   "timezone": "browser",
   "title": "pgpulse \u2014 PostgreSQL Pulse",
   "uid": "pgpulse-main",
-  "version": 11
+  "version": 12
 }

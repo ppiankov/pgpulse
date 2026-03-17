@@ -384,7 +384,7 @@
         ]
       },
       "gridPos": {
-        "h": 10,
+        "h": 12,
         "w": 24,
         "x": 0,
         "y": 1
@@ -481,7 +481,7 @@
           "refId": "G"
         },
         {
-          "expr": "pg_node_role{instance=~\"$instance\"} == 1",
+          "expr": "label_replace(pg_node_role{instance=~\"$instance\"} == 1, \"__value__\", \"$1\", \"role\", \"(.+)\")",
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
@@ -505,21 +505,36 @@
       ],
       "transformations": [
         {
-          "id": "merge",
-          "options": {}
+          "id": "seriesToColumns",
+          "options": {
+            "byField": "instance"
+          }
         },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
               "Time": true,
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "Time 5": true,
+              "Time 6": true,
+              "Time 7": true,
+              "Time 8": true,
+              "Time 9": true,
               "__name__": true,
               "job": true,
               "container": true,
               "endpoint": true,
               "namespace": true,
               "pod": true,
-              "service": true
+              "service": true,
+              "role": true,
+              "datname": true,
+              "state": true,
+              "usename": true
             },
             "renameByName": {
               "instance": "Instance",
@@ -531,8 +546,7 @@
               "Value #F": "Conn %",
               "Value #G": "Max Conn",
               "Value #H": "Role",
-              "Value #I": "Scrape (ms)",
-              "role": "Role"
+              "Value #I": "Scrape (ms)"
             },
             "indexByName": {
               "Instance": 0,
@@ -1640,7 +1654,8 @@
             "uid": "${DS_PROMETHEUS}"
           }
         }
-      ]
+      ],
+      "description": "Seconds since last manual VACUUM per table. Shows 'No data' if no manual VACUUM has ever been run \u2014 this is normal if autovacuum is handling everything (see Time Since Last Autovacuum). Only investigate if autovacuum is also lagging."
     },
     {
       "datasource": {
@@ -2483,8 +2498,8 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 10,
+        "w": 24,
         "x": 0,
         "y": 167
       },
@@ -2535,14 +2550,19 @@
       ],
       "transformations": [
         {
-          "id": "merge",
-          "options": {}
+          "id": "seriesToColumns",
+          "options": {
+            "byField": "instance"
+          }
         },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
               "Time": true,
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
               "__name__": true,
               "job": true,
               "container": true,
@@ -2578,7 +2598,7 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
+        "x": 0,
         "y": 167
       },
       "id": 97,
@@ -2910,5 +2930,5 @@
   "timezone": "browser",
   "title": "pgpulse \u2014 PostgreSQL Pulse",
   "uid": "pgpulse-main",
-  "version": 10
+  "version": 11
 }

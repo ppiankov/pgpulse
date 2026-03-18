@@ -43,6 +43,8 @@ type Metrics struct {
 
 	// Regression (WO-12)
 	StmtRegressions         prometheus.Gauge
+	StmtResetDetected       prometheus.Gauge
+	StmtPlanChanges         *prometheus.GaugeVec
 	StmtMeanTimeChangeRatio *prometheus.GaugeVec
 	StmtCallsDelta          *prometheus.GaugeVec
 
@@ -215,6 +217,14 @@ func New(reg prometheus.Registerer) *Metrics {
 			Name: "pg_stmt_regressions",
 			Help: "Number of queries whose mean execution time regressed beyond threshold.",
 		}),
+		StmtResetDetected: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "pg_stmt_reset_detected",
+			Help: "1 when pg_stat_statements reset was detected this poll cycle.",
+		}),
+		StmtPlanChanges: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_stmt_plan_changes",
+			Help: "Number of new plans generated for a query since last poll (PG14+).",
+		}, []string{"query_fingerprint", "usename"}),
 		StmtMeanTimeChangeRatio: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: "pg_stmt_mean_time_change_ratio",
 			Help: "Ratio of current to previous mean execution time per query.",
@@ -337,6 +347,8 @@ func New(reg prometheus.Registerer) *Metrics {
 		m.LockChainMaxDepth,
 		m.LockByType,
 		m.StmtRegressions,
+		m.StmtResetDetected,
+		m.StmtPlanChanges,
 		m.StmtMeanTimeChangeRatio,
 		m.StmtCallsDelta,
 		m.WalBytesTotal,

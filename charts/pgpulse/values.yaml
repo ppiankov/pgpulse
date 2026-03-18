@@ -19,6 +19,9 @@ targets:
     telegramChatId: ""
     alertWebhookUrl: ""
     alertCooldown: "5m"
+    grafanaUrl: ""
+    grafanaToken: ""
+    grafanaDashboardUid: ""
 
 resources:
   requests:

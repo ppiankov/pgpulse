@@ -20,6 +20,11 @@ type Config struct {
 	TelegramChatID   string
 	AlertWebhookURL  string
 	AlertCooldown    time.Duration
+
+	// Grafana annotations (optional).
+	GrafanaURL   string
+	GrafanaToken string
+	DashboardUID string
 }
 
 func Load() (Config, error) {
@@ -92,6 +97,9 @@ func Load() (Config, error) {
 		SlowQueryThreshold:  slowThreshold,
 		RegressionThreshold: regressionThreshold,
 		StmtLimit:           stmtLimit,
+		GrafanaURL:          os.Getenv("GRAFANA_URL"),
+		GrafanaToken:        os.Getenv("GRAFANA_TOKEN"),
+		DashboardUID:        os.Getenv("GRAFANA_DASHBOARD_UID"),
 		TelegramBotToken:    os.Getenv("TELEGRAM_BOT_TOKEN"),
 		TelegramChatID:      os.Getenv("TELEGRAM_CHAT_ID"),
 		AlertWebhookURL:     os.Getenv("ALERT_WEBHOOK_URL"),

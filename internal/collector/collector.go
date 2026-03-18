@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ppiankov/pgpulse/internal/alerter"
+	"github.com/ppiankov/pgpulse/internal/annotator"
 	"github.com/ppiankov/pgpulse/internal/config"
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
@@ -16,6 +17,7 @@ type Collector struct {
 	metrics             *metrics.Metrics
 	cfg                 config.Config
 	alerter             *alerter.Alerter
+	annotator           *annotator.Annotator
 	hasStmt             bool
 	useV13              bool
 	hasPG14             bool
@@ -29,20 +31,27 @@ type Collector struct {
 	lastRegressions     int
 }
 
-func New(db Querier, m *metrics.Metrics, cfg config.Config, a ...*alerter.Alerter) *Collector {
+func New(db Querier, m *metrics.Metrics, cfg config.Config, opts ...interface{}) *Collector {
 	threshold := cfg.RegressionThreshold
 	if threshold <= 0 {
 		threshold = 2.0
 	}
 	var al *alerter.Alerter
-	if len(a) > 0 {
-		al = a[0]
+	var an *annotator.Annotator
+	for _, opt := range opts {
+		switch v := opt.(type) {
+		case *alerter.Alerter:
+			al = v
+		case *annotator.Annotator:
+			an = v
+		}
 	}
 	return &Collector{
 		db:                  db,
 		metrics:             m,
 		cfg:                 cfg,
 		alerter:             al,
+		annotator:           an,
 		regressionThreshold: threshold,
 	}
 }
@@ -194,8 +203,26 @@ func (c *Collector) collect(ctx context.Context) {
 	c.metrics.Up.Set(1)
 	c.metrics.ScrapeDuration.Set(time.Since(start).Seconds())
 
+	// Annotate anomalies on Grafana timeline.
+	c.checkAnomalies(ctx, totalConns)
+
 	// Fire alerts based on collected metrics.
 	c.checkAlerts(ctx)
+}
+
+func (c *Collector) checkAnomalies(ctx context.Context, totalConns int) {
+	if c.annotator == nil {
+		return
+	}
+
+	// Connection spike: +20 connections in one poll cycle.
+	c.annotator.CheckDelta("connections", float64(totalConns), 20, []string{"connections"})
+
+	// Lock chain spike.
+	c.annotator.Check("lock_chain_depth", float64(c.lastLockDepth), 2.0, []string{"locks"})
+
+	// Regression spike.
+	c.annotator.CheckDelta("regressions", float64(c.lastRegressions), 1, []string{"regression"})
 }
 
 func (c *Collector) fire(a alerter.Alert) {

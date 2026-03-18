@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ppiankov/pgpulse/internal/alerter"
+	"github.com/ppiankov/pgpulse/internal/annotator"
 	"github.com/ppiankov/pgpulse/internal/collector"
 	"github.com/ppiankov/pgpulse/internal/config"
 	"github.com/ppiankov/pgpulse/internal/metrics"
@@ -59,7 +60,8 @@ func runServe(cmd *cobra.Command, args []string) error {
 	m := metrics.New(reg)
 
 	al := alerter.New(cfg)
-	coll := collector.New(db, m, cfg, al)
+	an := annotator.New(cfg.GrafanaURL, cfg.GrafanaToken, cfg.DashboardUID)
+	coll := collector.New(db, m, cfg, al, an)
 	coll.ProbeExtensions(context.Background())
 
 	ctx, cancel = signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

@@ -62,6 +62,18 @@ spec:
             - name: ALERT_COOLDOWN
               value: {{ .alertCooldown | quote }}
             {{- end }}
+            {{- if .grafanaUrl }}
+            - name: GRAFANA_URL
+              value: {{ .grafanaUrl | quote }}
+            {{- end }}
+            {{- if .grafanaToken }}
+            - name: GRAFANA_TOKEN
+              value: {{ .grafanaToken | quote }}
+            {{- end }}
+            {{- if .grafanaDashboardUid }}
+            - name: GRAFANA_DASHBOARD_UID
+              value: {{ .grafanaDashboardUid | quote }}
+            {{- end }}
           ports:
             - name: metrics
               containerPort: {{ .metricsPort | default 9187 }}

@@ -36,6 +36,10 @@ type Metrics struct {
 	IndexBytes      *prometheus.GaugeVec
 	IndexScansTotal *prometheus.GaugeVec
 
+	// Bloat estimation
+	TableBloatBytes *prometheus.GaugeVec
+	TableBloatRatio *prometheus.GaugeVec
+
 	// Locks (WO-13)
 	LockBlockedQueries prometheus.Gauge
 	LockChainMaxDepth  prometheus.Gauge
@@ -198,6 +202,16 @@ func New(reg prometheus.Registerer) *Metrics {
 			Help: "Cumulative number of index scans.",
 		}, []string{"index", "table"}),
 
+		// Bloat estimation
+		TableBloatBytes: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_table_bloat_bytes",
+			Help: "Estimated reclaimable bloat per table based on dead tuple ratio.",
+		}, []string{"table"}),
+		TableBloatRatio: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "pg_table_bloat_ratio",
+			Help: "Estimated bloat ratio per table (dead tuples / total tuples).",
+		}, []string{"table"}),
+
 		// Locks
 		LockBlockedQueries: prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "pg_lock_blocked_queries",
@@ -343,6 +357,8 @@ func New(reg prometheus.Registerer) *Metrics {
 		m.TableBytes,
 		m.IndexBytes,
 		m.IndexScansTotal,
+		m.TableBloatBytes,
+		m.TableBloatRatio,
 		m.LockBlockedQueries,
 		m.LockChainMaxDepth,
 		m.LockByType,

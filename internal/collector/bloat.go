@@ -76,3 +76,45 @@ func collectBloat(ctx context.Context, db Querier, m *metrics.Metrics) error {
 
 	return idxRows.Err()
 }
+
+// Bloat estimation query — uses pg_stat_user_tables to estimate reclaimable space.
+// Based on dead tuple ratio × table size. No pgstattuple extension needed.
+const bloatEstimateQuery = `
+SELECT
+    schemaname || '.' || relname AS table_name,
+    pg_relation_size(quote_ident(schemaname) || '.' || quote_ident(relname)) AS table_bytes,
+    CASE WHEN n_live_tup + n_dead_tup > 0
+        THEN n_dead_tup::float / (n_live_tup + n_dead_tup)
+        ELSE 0
+    END AS dead_ratio
+FROM pg_stat_user_tables
+WHERE n_live_tup + n_dead_tup > 1000
+ORDER BY n_dead_tup DESC
+LIMIT 50
+`
+
+func collectBloatEstimate(ctx context.Context, db Querier, m *metrics.Metrics) error {
+	rows, err := db.QueryContext(ctx, bloatEstimateQuery)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	m.TableBloatBytes.Reset()
+	m.TableBloatRatio.Reset()
+
+	for rows.Next() {
+		var tableName string
+		var tableBytes, deadRatio float64
+
+		if err := rows.Scan(&tableName, &tableBytes, &deadRatio); err != nil {
+			return err
+		}
+
+		estimatedBloat := tableBytes * deadRatio
+		m.TableBloatBytes.WithLabelValues(tableName).Set(estimatedBloat)
+		m.TableBloatRatio.WithLabelValues(tableName).Set(deadRatio)
+	}
+
+	return rows.Err()
+}

@@ -138,6 +138,11 @@ func (c *Collector) collect(ctx context.Context) {
 		c.metrics.ScrapeErrors.Inc()
 	}
 
+	if err := collectBloatEstimate(ctx, c.db, c.metrics); err != nil {
+		log.Printf("bloat estimate collection error: %v", err)
+		c.metrics.ScrapeErrors.Inc()
+	}
+
 	lockDepth, err := collectLocks(ctx, c.db, c.metrics)
 	if err != nil {
 		log.Printf("locks collection error: %v", err)

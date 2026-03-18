@@ -2,9 +2,11 @@ package collector
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
+	"github.com/ppiankov/pgpulse/internal/alerter"
 	"github.com/ppiankov/pgpulse/internal/config"
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
@@ -13,6 +15,7 @@ type Collector struct {
 	db                  Querier
 	metrics             *metrics.Metrics
 	cfg                 config.Config
+	alerter             *alerter.Alerter
 	hasStmt             bool
 	useV13              bool
 	hasPG14             bool
@@ -22,17 +25,24 @@ type Collector struct {
 	prevWalBytes        float64
 	prevWalTime         time.Time
 	connHistory         []connSample
+	lastLockDepth       int
+	lastRegressions     int
 }
 
-func New(db Querier, m *metrics.Metrics, cfg config.Config) *Collector {
+func New(db Querier, m *metrics.Metrics, cfg config.Config, a ...*alerter.Alerter) *Collector {
 	threshold := cfg.RegressionThreshold
 	if threshold <= 0 {
 		threshold = 2.0
+	}
+	var al *alerter.Alerter
+	if len(a) > 0 {
+		al = a[0]
 	}
 	return &Collector{
 		db:                  db,
 		metrics:             m,
 		cfg:                 cfg,
+		alerter:             al,
 		regressionThreshold: threshold,
 	}
 }
@@ -128,16 +138,20 @@ func (c *Collector) collect(ctx context.Context) {
 		c.metrics.ScrapeErrors.Inc()
 	}
 
-	if err := collectLocks(ctx, c.db, c.metrics); err != nil {
+	lockDepth, err := collectLocks(ctx, c.db, c.metrics)
+	if err != nil {
 		log.Printf("locks collection error: %v", err)
 		c.metrics.ScrapeErrors.Inc()
 	}
+	c.lastLockDepth = lockDepth
 
 	if c.hasStmt {
-		if err := c.collectRegression(ctx); err != nil {
+		regressions, err := c.collectRegression(ctx)
+		if err != nil {
 			log.Printf("regression collection error: %v", err)
 			c.metrics.ScrapeErrors.Inc()
 		}
+		c.lastRegressions = regressions
 	}
 
 	// Replication metrics only on primary (not in recovery).
@@ -174,4 +188,57 @@ func (c *Collector) collect(ctx context.Context) {
 
 	c.metrics.Up.Set(1)
 	c.metrics.ScrapeDuration.Set(time.Since(start).Seconds())
+
+	// Fire alerts based on collected metrics.
+	c.checkAlerts(ctx)
+}
+
+func (c *Collector) fire(a alerter.Alert) {
+	if c.alerter != nil {
+		c.alerter.Fire(a)
+	}
+}
+
+func (c *Collector) checkAlerts(ctx context.Context) {
+	if c.alerter == nil {
+		return
+	}
+
+	instance := c.cfg.DSN
+
+	// Connection saturation > 90%.
+	var maxConns float64
+	row := c.db.QueryRowContext(ctx, "SHOW max_connections")
+	if err := row.Scan(&maxConns); err == nil && maxConns > 0 {
+		var current float64
+		row = c.db.QueryRowContext(ctx, "SELECT count(*) FROM pg_stat_activity")
+		if err := row.Scan(&current); err == nil {
+			usedRatio := current / maxConns
+			if usedRatio > 0.9 {
+				c.fire(alerter.Alert{
+					Type:     alerter.AlertConnSaturation,
+					Message:  fmt.Sprintf("Connection usage at %.0f%% (%g/%g)", usedRatio*100, current, maxConns),
+					Instance: instance,
+				})
+			}
+		}
+	}
+
+	// Lock chain depth > 3.
+	if c.lastLockDepth > 3 {
+		c.fire(alerter.Alert{
+			Type:     alerter.AlertLockChain,
+			Message:  fmt.Sprintf("Lock chain depth: %d (queries waiting on queries waiting on queries)", c.lastLockDepth),
+			Instance: instance,
+		})
+	}
+
+	// Query regressions detected.
+	if c.lastRegressions > 0 {
+		c.fire(alerter.Alert{
+			Type:     alerter.AlertRegression,
+			Message:  fmt.Sprintf("%d queries regressed beyond %.1fx threshold", c.lastRegressions, c.regressionThreshold),
+			Instance: instance,
+		})
+	}
 }

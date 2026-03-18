@@ -46,6 +46,22 @@ spec:
               value: {{ .regressionThreshold | default "2.0" | quote }}
             - name: STMT_LIMIT
               value: {{ .stmtLimit | default "50" | quote }}
+            {{- if .telegramBotToken }}
+            - name: TELEGRAM_BOT_TOKEN
+              value: {{ .telegramBotToken | quote }}
+            {{- end }}
+            {{- if .telegramChatId }}
+            - name: TELEGRAM_CHAT_ID
+              value: {{ .telegramChatId | quote }}
+            {{- end }}
+            {{- if .alertWebhookUrl }}
+            - name: ALERT_WEBHOOK_URL
+              value: {{ .alertWebhookUrl | quote }}
+            {{- end }}
+            {{- if .alertCooldown }}
+            - name: ALERT_COOLDOWN
+              value: {{ .alertCooldown | quote }}
+            {{- end }}
           ports:
             - name: metrics
               containerPort: {{ .metricsPort | default 9187 }}

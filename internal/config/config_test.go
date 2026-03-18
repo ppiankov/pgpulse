@@ -30,6 +30,7 @@ func TestLoadConfig(t *testing.T) {
 				SlowQueryThreshold:  5 * time.Second,
 				RegressionThreshold: 2.0,
 				StmtLimit:           50,
+				AlertCooldown:       5 * time.Minute,
 			},
 		},
 		{
@@ -47,6 +48,7 @@ func TestLoadConfig(t *testing.T) {
 				SlowQueryThreshold:  30 * time.Second,
 				RegressionThreshold: 2.0,
 				StmtLimit:           50,
+				AlertCooldown:       5 * time.Minute,
 			},
 		},
 		{
@@ -61,6 +63,7 @@ func TestLoadConfig(t *testing.T) {
 				SlowQueryThreshold:  5 * time.Second,
 				RegressionThreshold: 2.0,
 				StmtLimit:           50,
+				AlertCooldown:       5 * time.Minute,
 			},
 		},
 		{

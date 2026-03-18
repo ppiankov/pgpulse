@@ -16,6 +16,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 
+	"github.com/ppiankov/pgpulse/internal/alerter"
 	"github.com/ppiankov/pgpulse/internal/collector"
 	"github.com/ppiankov/pgpulse/internal/config"
 	"github.com/ppiankov/pgpulse/internal/metrics"
@@ -57,7 +58,8 @@ func runServe(cmd *cobra.Command, args []string) error {
 	reg := prometheus.NewRegistry()
 	m := metrics.New(reg)
 
-	coll := collector.New(db, m, cfg)
+	al := alerter.New(cfg)
+	coll := collector.New(db, m, cfg, al)
 	coll.ProbeExtensions(context.Background())
 
 	ctx, cancel = signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

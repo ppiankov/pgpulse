@@ -14,6 +14,12 @@ type Config struct {
 	SlowQueryThreshold  time.Duration
 	RegressionThreshold float64
 	StmtLimit           int
+
+	// Alerting (all optional).
+	TelegramBotToken string
+	TelegramChatID   string
+	AlertWebhookURL  string
+	AlertCooldown    time.Duration
 }
 
 func Load() (Config, error) {
@@ -70,6 +76,15 @@ func Load() (Config, error) {
 		stmtLimit = s
 	}
 
+	alertCooldown := 5 * time.Minute
+	if v := os.Getenv("ALERT_COOLDOWN"); v != "" {
+		d, err := time.ParseDuration(v)
+		if err != nil {
+			return Config{}, fmt.Errorf("invalid ALERT_COOLDOWN: %w", err)
+		}
+		alertCooldown = d
+	}
+
 	return Config{
 		DSN:                 dsn,
 		MetricsPort:         port,
@@ -77,5 +92,9 @@ func Load() (Config, error) {
 		SlowQueryThreshold:  slowThreshold,
 		RegressionThreshold: regressionThreshold,
 		StmtLimit:           stmtLimit,
+		TelegramBotToken:    os.Getenv("TELEGRAM_BOT_TOKEN"),
+		TelegramChatID:      os.Getenv("TELEGRAM_CHAT_ID"),
+		AlertWebhookURL:     os.Getenv("ALERT_WEBHOOK_URL"),
+		AlertCooldown:       alertCooldown,
 	}, nil
 }

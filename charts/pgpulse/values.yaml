@@ -15,6 +15,10 @@ targets:
     slowQueryThreshold: "5s"
     regressionThreshold: "2.0"
     stmtLimit: "50"
+    telegramBotToken: ""
+    telegramChatId: ""
+    alertWebhookUrl: ""
+    alertCooldown: "5m"
 
 resources:
   requests:

@@ -243,6 +243,45 @@ All configuration is via environment variables:
 | `SLOW_QUERY_THRESHOLD` | `5s` | Duration after which a query is counted as slow |
 | `REGRESSION_THRESHOLD` | `2.0` | Mean time ratio above which a query is flagged as regressed |
 | `STMT_LIMIT` | `50` | Number of top statements to track per dimension |
+| `TELEGRAM_BOT_TOKEN` | *(disabled)* | Telegram bot token for alerts |
+| `TELEGRAM_CHAT_ID` | *(disabled)* | Telegram chat ID for alerts |
+| `ALERT_WEBHOOK_URL` | *(disabled)* | Slack or generic webhook URL for alerts |
+| `ALERT_COOLDOWN` | `5m` | Minimum interval between repeated alerts of the same type |
+
+## Alerting
+
+pgpulse has built-in alerting that fires on critical conditions without requiring Alertmanager. Alerts are optional — disabled unless a notification target is configured.
+
+### Alert conditions
+
+| Condition | Trigger | Severity |
+|-----------|---------|----------|
+| Connection saturation | `connections / max_connections > 90%` | Critical |
+| Lock chain depth | Chain depth > 3 | Warning |
+| Query regression | Any query mean time exceeds regression threshold | Warning |
+
+### Telegram
+
+Create a bot via [@BotFather](https://t.me/BotFather), add it to your group, then configure:
+
+```yaml
+targets:
+  - name: prod
+    dsn: "postgres://pgpulse@host:5432/mydb"
+    telegramBotToken: "123456:ABC-DEF"
+    telegramChatId: "-1001234567890"
+```
+
+### Slack / generic webhook
+
+```yaml
+targets:
+  - name: prod
+    dsn: "postgres://pgpulse@host:5432/mydb"
+    alertWebhookUrl: "https://hooks.slack.com/services/T.../B.../..."
+```
+
+Both Telegram and webhook can be enabled simultaneously. Each alert type has an independent cooldown (default 5 minutes) to avoid spam.
 
 ## Metrics
 

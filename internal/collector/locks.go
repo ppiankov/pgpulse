@@ -20,10 +20,10 @@ JOIN pg_locks blocking
 WHERE NOT blocked.granted
 `
 
-func collectLocks(ctx context.Context, db Querier, m *metrics.Metrics) error {
+func collectLocks(ctx context.Context, db Querier, m *metrics.Metrics) (int, error) {
 	rows, err := db.QueryContext(ctx, lockChainsQuery)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer rows.Close()
 
@@ -37,7 +37,7 @@ func collectLocks(ctx context.Context, db Querier, m *metrics.Metrics) error {
 		var lockType string
 
 		if err := rows.Scan(&blockedPID, &blockingPID, &lockType); err != nil {
-			return err
+			return 0, err
 		}
 
 		totalBlocked++
@@ -47,7 +47,7 @@ func collectLocks(ctx context.Context, db Querier, m *metrics.Metrics) error {
 	}
 
 	if err := rows.Err(); err != nil {
-		return err
+		return 0, err
 	}
 
 	m.LockBlockedQueries.Set(totalBlocked)
@@ -57,9 +57,10 @@ func collectLocks(ctx context.Context, db Querier, m *metrics.Metrics) error {
 		m.LockByType.WithLabelValues(lt).Set(count)
 	}
 
-	m.LockChainMaxDepth.Set(float64(maxChainDepth(adj, blocked)))
+	depth := maxChainDepth(adj, blocked)
+	m.LockChainMaxDepth.Set(float64(depth))
 
-	return nil
+	return depth, nil
 }
 
 // maxChainDepth computes the longest lock wait chain using iterative DFS.

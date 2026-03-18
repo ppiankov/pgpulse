@@ -11,7 +11,7 @@ type stmtSnapshot struct {
 	totalTime float64
 }
 
-func (c *Collector) collectRegression(ctx context.Context) error {
+func (c *Collector) collectRegression(ctx context.Context) (int, error) {
 	orderBy := "total_time"
 	if c.useV13 {
 		orderBy = "total_exec_time"
@@ -20,7 +20,7 @@ func (c *Collector) collectRegression(ctx context.Context) error {
 
 	rows, err := c.db.QueryContext(ctx, query)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer rows.Close()
 
@@ -31,7 +31,7 @@ func (c *Collector) collectRegression(ctx context.Context) error {
 		var calls, meanTime, totalTime float64
 
 		if err := rows.Scan(&fingerprint, &usename, &calls, &meanTime, &totalTime); err != nil {
-			return err
+			return 0, err
 		}
 
 		key := fmt.Sprintf("%s|%s", fingerprint, usename)
@@ -43,13 +43,13 @@ func (c *Collector) collectRegression(ctx context.Context) error {
 	}
 
 	if err := rows.Err(); err != nil {
-		return err
+		return 0, err
 	}
 
 	// First poll — store snapshot, no deltas to compute.
 	if c.prevStmts == nil {
 		c.prevStmts = current
-		return nil
+		return 0, nil
 	}
 
 	c.metrics.StmtMeanTimeChangeRatio.Reset()
@@ -88,5 +88,5 @@ func (c *Collector) collectRegression(ctx context.Context) error {
 	c.metrics.StmtRegressions.Set(regressionCount)
 	c.prevStmts = current
 
-	return nil
+	return int(regressionCount), nil
 }

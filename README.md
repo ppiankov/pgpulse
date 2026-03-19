@@ -247,6 +247,9 @@ All configuration is via environment variables:
 | `TELEGRAM_CHAT_ID` | *(disabled)* | Telegram chat ID for alerts |
 | `ALERT_WEBHOOK_URL` | *(disabled)* | Slack or generic webhook URL for alerts |
 | `ALERT_COOLDOWN` | `5m` | Minimum interval between repeated alerts of the same type |
+| `GRAFANA_URL` | *(disabled)* | Grafana base URL for anomaly annotations |
+| `GRAFANA_TOKEN` | *(disabled)* | Grafana service account token |
+| `GRAFANA_DASHBOARD_UID` | *(optional)* | Scope annotations to a specific dashboard |
 
 ## Alerting
 
@@ -283,6 +286,26 @@ targets:
 
 Both Telegram and webhook can be enabled simultaneously. Each alert type has an independent cooldown (default 5 minutes) to avoid spam.
 
+### Grafana anomaly annotations
+
+pgpulse can push annotations to Grafana when it detects spikes — visible as vertical markers on the dashboard timeline. This helps the team see "what happened at 14:30?" without scrolling through logs.
+
+Anomalies detected:
+- **Connection spike** — +20 connections in one poll cycle
+- **Lock chain spike** — lock depth doubled
+- **Regression spike** — any new query regression
+
+```yaml
+targets:
+  - name: prod
+    dsn: "postgres://pgpulse@host:5432/mydb"
+    grafanaUrl: "http://grafana.monitoring:3000"
+    grafanaToken: "glsa_xxx"
+    grafanaDashboardUid: "pgpulse-main"
+```
+
+Requires a Grafana service account token with `annotations:write` permission. Dashboard UID is optional — omit to annotate globally.
+
 ## Metrics
 
 ### Activity (`pg_stat_activity`)
@@ -316,6 +339,8 @@ Both Telegram and webhook can be enabled simultaneously. Each alert type has an 
 - `pg_stmt_regressions` — count of queries whose mean time regressed beyond threshold
 - `pg_stmt_mean_time_change_ratio{query_fingerprint,usename}` — current/previous mean time ratio
 - `pg_stmt_calls_delta{query_fingerprint,usename}` — change in call count since last poll
+- `pg_stmt_reset_detected` — 1 when pg_stat_statements reset detected (prevents false regressions)
+- `pg_stmt_plan_changes{query_fingerprint,usename}` — plan count delta per query (PG14+, detects plan changes)
 
 ### Vacuum health
 - `pg_dead_tuples{table}` — dead tuple count per table
@@ -328,6 +353,8 @@ Both Telegram and webhook can be enabled simultaneously. Each alert type has an 
 ### Table and index sizes
 - `pg_table_total_bytes{table}` — total size including indexes and toast
 - `pg_table_bytes{table}` — heap size only
+- `pg_table_bloat_bytes{table}` — estimated reclaimable bloat per table
+- `pg_table_bloat_ratio{table}` — bloat ratio (dead tuples / total tuples)
 - `pg_index_bytes{index,table}` — individual index size
 - `pg_index_scans_total{index,table}` — cumulative index scans (0 = unused index)
 

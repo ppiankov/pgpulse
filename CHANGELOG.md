@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-03-21
+
+### Added
+- Agent-native CLI: `pgpulse status --format json` for one-shot health snapshots
+- `--unhealthy` flag to filter status output to problematic items only
+- `pgpulse doctor --format json` for runtime readiness validation (7 checks)
+- `docs/SKILL.md` for ANCC agent discovery
+- `internal/snapshot` package for structured data collection
+- `internal/doctor` package for readiness checks
+- Exit codes: 0=healthy/pass, 1=degraded/warn, 2=critical/fail
+
+### Changed
+- Exported SQL query constants from collector package for reuse
+
 ## [0.3.1] - 2026-03-15
 
 ### Added

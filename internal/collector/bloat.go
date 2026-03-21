@@ -6,7 +6,7 @@ import (
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
 
-const tableSizeQuery = `
+const TableSizeQuery = `
 SELECT
     schemaname || '.' || relname AS table_name,
     pg_total_relation_size(quote_ident(schemaname) || '.' || quote_ident(relname)) AS total_bytes,
@@ -16,7 +16,7 @@ ORDER BY pg_total_relation_size(quote_ident(schemaname) || '.' || quote_ident(re
 LIMIT 50
 `
 
-const indexSizeQuery = `
+const IndexSizeQuery = `
 SELECT
     schemaname || '.' || indexrelname AS index_name,
     schemaname || '.' || relname AS table_name,
@@ -28,7 +28,7 @@ LIMIT 50
 `
 
 func collectBloat(ctx context.Context, db Querier, m *metrics.Metrics) error {
-	rows, err := db.QueryContext(ctx, tableSizeQuery)
+	rows, err := db.QueryContext(ctx, TableSizeQuery)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func collectBloat(ctx context.Context, db Querier, m *metrics.Metrics) error {
 		return err
 	}
 
-	idxRows, err := db.QueryContext(ctx, indexSizeQuery)
+	idxRows, err := db.QueryContext(ctx, IndexSizeQuery)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func collectBloat(ctx context.Context, db Querier, m *metrics.Metrics) error {
 
 // Bloat estimation query — uses pg_stat_user_tables to estimate reclaimable space.
 // Based on dead tuple ratio × table size. No pgstattuple extension needed.
-const bloatEstimateQuery = `
+const BloatEstimateQuery = `
 SELECT
     schemaname || '.' || relname AS table_name,
     pg_relation_size(quote_ident(schemaname) || '.' || quote_ident(relname)) AS table_bytes,
@@ -94,7 +94,7 @@ LIMIT 50
 `
 
 func collectBloatEstimate(ctx context.Context, db Querier, m *metrics.Metrics) error {
-	rows, err := db.QueryContext(ctx, bloatEstimateQuery)
+	rows, err := db.QueryContext(ctx, BloatEstimateQuery)
 	if err != nil {
 		return err
 	}

@@ -13,7 +13,7 @@ type stmtSnapshot struct {
 	plans     float64 // PG14+: number of times the query was planned
 }
 
-const regressionQueryV14 = `
+const RegressionQueryV14 = `
 SELECT
     LEFT(query, 80) AS query_fingerprint,
     COALESCE(r.rolname, 'unknown') AS usename,
@@ -32,13 +32,13 @@ func (c *Collector) collectRegression(ctx context.Context) (int, error) {
 	var query string
 	scanPlans := c.hasPG14
 	if scanPlans {
-		query = fmt.Sprintf(regressionQueryV14, c.cfg.StmtLimit)
+		query = fmt.Sprintf(RegressionQueryV14, c.cfg.StmtLimit)
 	} else {
 		orderBy := "total_time"
 		if c.useV13 {
 			orderBy = "total_exec_time"
 		}
-		query = stmtQuery(c.useV13, orderBy, c.cfg.StmtLimit)
+		query = StmtQuery(c.useV13, orderBy, c.cfg.StmtLimit)
 	}
 
 	rows, err := c.db.QueryContext(ctx, query)

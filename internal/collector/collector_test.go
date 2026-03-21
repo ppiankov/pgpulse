@@ -122,7 +122,7 @@ func TestCollectActivity(t *testing.T) {
 			defer q.db.Close()
 
 			if tt.wantError {
-				mock.ExpectQuery(activityQuery).WillReturnError(errors.New("query failed"))
+				mock.ExpectQuery(ActivityQuery).WillReturnError(errors.New("query failed"))
 				_, err := collectActivity(ctx, q, m, tt.slowThresholdSec)
 				if err == nil {
 					t.Fatal("expected error")

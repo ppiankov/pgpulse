@@ -6,7 +6,7 @@ import (
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
 
-const databaseSizeQuery = `
+const DatabaseSizeQuery = `
 SELECT datname, pg_database_size(datname) AS size_bytes
 FROM pg_database
 WHERE datistemplate = false
@@ -14,7 +14,7 @@ WHERE datistemplate = false
 
 func collectDatabase(ctx context.Context, db Querier, m *metrics.Metrics, totalConns int) error {
 	// Database sizes
-	rows, err := db.QueryContext(ctx, databaseSizeQuery)
+	rows, err := db.QueryContext(ctx, DatabaseSizeQuery)
 	if err != nil {
 		return err
 	}

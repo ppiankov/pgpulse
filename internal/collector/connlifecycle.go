@@ -6,7 +6,7 @@ import (
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
 
-const connLifecycleQuery = `
+const ConnLifecycleQuery = `
 SELECT
     state,
     EXTRACT(EPOCH FROM (now() - backend_start)) AS age_seconds,
@@ -20,7 +20,7 @@ WHERE pid != pg_backend_pid()
 `
 
 func collectConnLifecycle(ctx context.Context, db Querier, m *metrics.Metrics) error {
-	rows, err := db.QueryContext(ctx, connLifecycleQuery)
+	rows, err := db.QueryContext(ctx, ConnLifecycleQuery)
 	if err != nil {
 		return err
 	}

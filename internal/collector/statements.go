@@ -9,7 +9,7 @@ import (
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
 
-const stmtBaseV13 = `
+const StmtBaseV13 = `
 SELECT
     LEFT(query, 80) AS query_fingerprint,
     COALESCE(r.rolname, 'unknown') AS usename,
@@ -23,7 +23,7 @@ ORDER BY %s DESC
 LIMIT %d
 `
 
-const stmtBaseV12 = `
+const StmtBaseV12 = `
 SELECT
     LEFT(query, 80) AS query_fingerprint,
     COALESCE(r.rolname, 'unknown') AS usename,
@@ -37,11 +37,11 @@ ORDER BY %s DESC
 LIMIT %d
 `
 
-func stmtQuery(useV13 bool, orderBy string, limit int) string {
+func StmtQuery(useV13 bool, orderBy string, limit int) string {
 	if useV13 {
-		return fmt.Sprintf(stmtBaseV13, orderBy, limit)
+		return fmt.Sprintf(StmtBaseV13, orderBy, limit)
 	}
-	return fmt.Sprintf(stmtBaseV12, orderBy, limit)
+	return fmt.Sprintf(StmtBaseV12, orderBy, limit)
 }
 
 // valueIndex selects which scanned value to use: 0=calls, 1=meanTime, 2=totalTime.
@@ -75,7 +75,7 @@ func collectStatements(ctx context.Context, db Querier, m *metrics.Metrics, useV
 	if !useV13 {
 		orderTotal = "total_time"
 	}
-	q := stmtQuery(useV13, orderTotal, limit)
+	q := StmtQuery(useV13, orderTotal, limit)
 
 	rows, err := db.QueryContext(ctx, q)
 	if err != nil {
@@ -105,7 +105,7 @@ func collectStatements(ctx context.Context, db Querier, m *metrics.Metrics, useV
 	}
 
 	// Top by calls
-	if err := collectStmtDimension(ctx, db, stmtQuery(useV13, "calls", limit),
+	if err := collectStmtDimension(ctx, db, StmtQuery(useV13, "calls", limit),
 		m.StmtTopByCalls, 0); err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func collectStatements(ctx context.Context, db Querier, m *metrics.Metrics, useV
 	if !useV13 {
 		orderMean = "mean_time"
 	}
-	if err := collectStmtDimension(ctx, db, stmtQuery(useV13, orderMean, limit),
+	if err := collectStmtDimension(ctx, db, StmtQuery(useV13, orderMean, limit),
 		m.StmtTopByMeanTime, 1); err != nil {
 		return err
 	}

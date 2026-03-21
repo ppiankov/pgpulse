@@ -6,7 +6,7 @@ import (
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
 
-const vacuumDeadTuplesQuery = `
+const VacuumDeadTuplesQuery = `
 SELECT
     schemaname || '.' || relname AS table_name,
     n_dead_tup,
@@ -22,12 +22,12 @@ ORDER BY n_dead_tup DESC
 LIMIT 50
 `
 
-const autovacuumWorkersQuery = `
+const AutovacuumWorkersQuery = `
 SELECT count(*) FROM pg_stat_activity WHERE backend_type = 'autovacuum worker'
 `
 
 func collectVacuum(ctx context.Context, db Querier, m *metrics.Metrics) error {
-	rows, err := db.QueryContext(ctx, vacuumDeadTuplesQuery)
+	rows, err := db.QueryContext(ctx, VacuumDeadTuplesQuery)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func collectVacuum(ctx context.Context, db Querier, m *metrics.Metrics) error {
 	}
 
 	var workerCount float64
-	row := db.QueryRowContext(ctx, autovacuumWorkersQuery)
+	row := db.QueryRowContext(ctx, AutovacuumWorkersQuery)
 	if err := row.Scan(&workerCount); err != nil {
 		return err
 	}

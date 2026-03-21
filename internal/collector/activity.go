@@ -8,7 +8,7 @@ import (
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
 
-const activityQuery = `
+const ActivityQuery = `
 SELECT
     COALESCE(state, 'unknown') AS state,
     COALESCE(usename, 'unknown') AS usename,
@@ -21,7 +21,7 @@ WHERE pid != pg_backend_pid()
 `
 
 func collectActivity(ctx context.Context, db Querier, m *metrics.Metrics, slowThresholdSec float64) (int, error) {
-	rows, err := db.QueryContext(ctx, activityQuery)
+	rows, err := db.QueryContext(ctx, ActivityQuery)
 	if err != nil {
 		return 0, err
 	}

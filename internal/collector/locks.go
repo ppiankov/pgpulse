@@ -6,7 +6,7 @@ import (
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
 
-const lockChainsQuery = `
+const LockChainsQuery = `
 SELECT
     blocked.pid AS blocked_pid,
     blocking.pid AS blocking_pid,
@@ -21,7 +21,7 @@ WHERE NOT blocked.granted
 `
 
 func collectLocks(ctx context.Context, db Querier, m *metrics.Metrics) (int, error) {
-	rows, err := db.QueryContext(ctx, lockChainsQuery)
+	rows, err := db.QueryContext(ctx, LockChainsQuery)
 	if err != nil {
 		return 0, err
 	}

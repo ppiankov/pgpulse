@@ -6,7 +6,7 @@ import (
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
 
-const replicationQuery = `
+const ReplicationQuery = `
 SELECT
     COALESCE(application_name, 'unknown') AS slot,
     COALESCE(client_addr::text, 'local') AS client_addr,
@@ -16,7 +16,7 @@ FROM pg_stat_replication
 `
 
 func collectReplication(ctx context.Context, db Querier, m *metrics.Metrics) error {
-	rows, err := db.QueryContext(ctx, replicationQuery)
+	rows, err := db.QueryContext(ctx, ReplicationQuery)
 	if err != nil {
 		// Query failed — set zero replicas and don't propagate.
 		m.ReplicationConnectedReplicas.Set(0)

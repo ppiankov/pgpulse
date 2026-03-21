@@ -6,7 +6,7 @@ import (
 	"github.com/ppiankov/pgpulse/internal/metrics"
 )
 
-const tableStatsQuery = `
+const TableStatsQuery = `
 SELECT
     schemaname || '.' || relname AS table_name,
     CASE WHEN seq_scan + COALESCE(idx_scan, 0) > 0
@@ -22,7 +22,7 @@ LIMIT 50
 `
 
 func collectTableStats(ctx context.Context, db Querier, m *metrics.Metrics) error {
-	rows, err := db.QueryContext(ctx, tableStatsQuery)
+	rows, err := db.QueryContext(ctx, TableStatsQuery)
 	if err != nil {
 		return err
 	}

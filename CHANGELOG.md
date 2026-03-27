@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-03-27
+
+### Fixed
+- Mask username and password in DSN for Telegram and webhook alerts
+- Add host to alert header for quick identification of alert source
+
 ## [0.6.0] - 2026-03-21
 
 ### Added

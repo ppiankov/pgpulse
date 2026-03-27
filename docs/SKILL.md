@@ -81,7 +81,7 @@ pgpulse doctor --format json
 
 ```json
 {
-  "tool": {"name": "pgpulse", "version": "0.6.0"},
+  "tool": {"name": "pgpulse", "version": "0.6.1"},
   "status": "pass|warn|fail",
   "checks": [
     {"name": "dsn_valid", "status": "pass", "message": "DSN is parseable"},

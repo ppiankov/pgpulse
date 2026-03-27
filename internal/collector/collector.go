@@ -236,7 +236,8 @@ func (c *Collector) checkAlerts(ctx context.Context) {
 		return
 	}
 
-	instance := c.cfg.DSN
+	instance := alerter.MaskDSN(c.cfg.DSN)
+	host := alerter.HostFromDSN(c.cfg.DSN)
 
 	// Connection saturation > 90%.
 	var maxConns float64
@@ -251,6 +252,7 @@ func (c *Collector) checkAlerts(ctx context.Context) {
 					Type:     alerter.AlertConnSaturation,
 					Message:  fmt.Sprintf("Connection usage at %.0f%% (%g/%g)", usedRatio*100, current, maxConns),
 					Instance: instance,
+					Host:     host,
 				})
 			}
 		}
@@ -262,6 +264,7 @@ func (c *Collector) checkAlerts(ctx context.Context) {
 			Type:     alerter.AlertLockChain,
 			Message:  fmt.Sprintf("Lock chain depth: %d (queries waiting on queries waiting on queries)", c.lastLockDepth),
 			Instance: instance,
+			Host:     host,
 		})
 	}
 
@@ -271,6 +274,7 @@ func (c *Collector) checkAlerts(ctx context.Context) {
 			Type:     alerter.AlertRegression,
 			Message:  fmt.Sprintf("%d queries regressed beyond %.1fx threshold", c.lastRegressions, c.regressionThreshold),
 			Instance: instance,
+			Host:     host,
 		})
 	}
 }

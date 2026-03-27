@@ -1,4 +1,58 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "10.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    }
+  ],
   "annotations": {
     "list": []
   },
@@ -23,7 +77,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -354,7 +408,7 @@
           "legendFormat": "{{instance}}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -365,7 +419,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -376,7 +430,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -387,7 +441,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -398,7 +452,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -409,7 +463,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -420,7 +474,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -431,7 +485,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -442,7 +496,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -521,7 +575,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 13
       },
       "id": 101,
       "title": "Query Activity",
@@ -530,7 +584,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -548,7 +602,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 10
+        "y": 14
       },
       "id": 10,
       "options": {
@@ -569,7 +623,7 @@
           "legendFormat": "{{ state }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -577,7 +631,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -592,7 +646,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 10
+        "y": 14
       },
       "id": 11,
       "options": {
@@ -613,7 +667,7 @@
           "legendFormat": "active",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         },
         {
@@ -621,7 +675,7 @@
           "legendFormat": "slow (>threshold)",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         },
         {
@@ -629,7 +683,7 @@
           "legendFormat": "waiting on locks",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -637,7 +691,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -653,7 +707,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 22
       },
       "id": 12,
       "options": {
@@ -670,7 +724,7 @@
           "legendFormat": "longest query",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -678,7 +732,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -696,7 +750,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 22
       },
       "id": 13,
       "options": {
@@ -713,7 +767,7 @@
           "legendFormat": "used / max",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -724,7 +778,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 30
       },
       "id": 102,
       "title": "Connections",
@@ -733,7 +787,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -751,7 +805,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 27
+        "y": 31
       },
       "id": 20,
       "options": {
@@ -772,7 +826,7 @@
           "legendFormat": "{{ usename }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -780,7 +834,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -798,7 +852,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 27
+        "y": 31
       },
       "id": 21,
       "options": {
@@ -819,7 +873,7 @@
           "legendFormat": "{{ datname }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -830,7 +884,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 39
       },
       "id": 103,
       "title": "Top Queries (pg_stat_statements)",
@@ -839,7 +893,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -855,7 +909,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 40
       },
       "id": 30,
       "options": {
@@ -878,7 +932,7 @@
           "legendFormat": "{{ query_fingerprint }} ({{ usename }})",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
@@ -887,7 +941,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {},
@@ -950,7 +1004,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 50
       },
       "id": 31,
       "options": {
@@ -971,7 +1025,7 @@
           "instant": true,
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
@@ -993,12 +1047,12 @@
           }
         }
       ],
-      "description": "Full table of top statements. Sort by Total (s) to find biggest CPU consumers. The Query column shows the fingerprint \u2014 match it to your application code."
+      "description": "Full table of top statements. Sort by Total (s) to find biggest CPU consumers. The Query column shows the fingerprint — match it to your application code."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1014,7 +1068,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 56
+        "y": 60
       },
       "id": 32,
       "options": {
@@ -1036,16 +1090,16 @@
           "legendFormat": "{{ query_fingerprint }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
-      "description": "Average time per single execution. Queries here are individually slow \u2014 check EXPLAIN plans, missing indexes, or inefficient joins."
+      "description": "Average time per single execution. Queries here are individually slow — check EXPLAIN plans, missing indexes, or inefficient joins."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1060,7 +1114,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 56
+        "y": 60
       },
       "id": 33,
       "options": {
@@ -1082,7 +1136,7 @@
           "legendFormat": "{{ query_fingerprint }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
@@ -1094,7 +1148,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 64
+        "y": 68
       },
       "id": 104,
       "title": "Database",
@@ -1103,7 +1157,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1119,7 +1173,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 65
+        "y": 69
       },
       "id": 40,
       "options": {
@@ -1139,7 +1193,7 @@
           "legendFormat": "{{ datname }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1147,7 +1201,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1162,7 +1216,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 65
+        "y": 69
       },
       "id": 41,
       "options": {
@@ -1179,7 +1233,7 @@
           "legendFormat": "errors/sec",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1190,7 +1244,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 73
+        "y": 77
       },
       "id": 105,
       "title": "Vacuum Health",
@@ -1199,7 +1253,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1227,7 +1281,7 @@
         "h": 4,
         "w": 5,
         "x": 0,
-        "y": 74
+        "y": 78
       },
       "id": 50,
       "options": {
@@ -1247,7 +1301,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1255,7 +1309,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1275,7 +1329,7 @@
         "h": 4,
         "w": 5,
         "x": 5,
-        "y": 74
+        "y": 78
       },
       "id": 51,
       "options": {
@@ -1295,7 +1349,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1303,7 +1357,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1331,7 +1385,7 @@
         "h": 4,
         "w": 5,
         "x": 10,
-        "y": 74
+        "y": 78
       },
       "id": 52,
       "options": {
@@ -1351,7 +1405,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1359,7 +1413,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1387,7 +1441,7 @@
         "h": 4,
         "w": 5,
         "x": 15,
-        "y": 74
+        "y": 78
       },
       "id": 53,
       "options": {
@@ -1407,7 +1461,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1415,7 +1469,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1443,7 +1497,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 74
+        "y": 78
       },
       "id": 54,
       "options": {
@@ -1463,7 +1517,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1471,7 +1525,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1489,7 +1543,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 78
+        "y": 82
       },
       "id": 55,
       "options": {
@@ -1510,7 +1564,7 @@
           "legendFormat": "{{ table }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
@@ -1519,7 +1573,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1535,7 +1589,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 78
+        "y": 82
       },
       "id": 56,
       "options": {
@@ -1556,7 +1610,7 @@
           "legendFormat": "{{ table }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
@@ -1565,7 +1619,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1581,7 +1635,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 86
+        "y": 90
       },
       "id": 57,
       "options": {
@@ -1602,16 +1656,16 @@
           "legendFormat": "{{ table }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
-      "description": "Seconds since last manual VACUUM per table. Shows 'No data' if no manual VACUUM has ever been run \u2014 this is normal if autovacuum is handling everything (see Time Since Last Autovacuum). Only investigate if autovacuum is also lagging."
+      "description": "Seconds since last manual VACUUM per table. Shows 'No data' if no manual VACUUM has ever been run — this is normal if autovacuum is handling everything (see Time Since Last Autovacuum). Only investigate if autovacuum is also lagging."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1627,7 +1681,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 86
+        "y": 90
       },
       "id": 58,
       "options": {
@@ -1648,10 +1702,102 @@
           "legendFormat": "{{ table }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 98
+      },
+      "id": 59,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        }
+      },
+      "title": "Estimated Bloat (bytes, top 10)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "topk(10, pg_table_bloat_bytes > 0)",
+          "legendFormat": "{{ table }}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          }
+        }
+      ],
+      "description": "Estimated reclaimable space per table based on dead tuple ratio and average row width. High values = table is significantly bloated. Consider VACUUM FULL or pg_repack for the worst offenders."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 98
+      },
+      "id": 60,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        }
+      },
+      "title": "Bloat Ratio (top 10)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "topk(10, pg_table_bloat_ratio > 0)",
+          "legendFormat": "{{ table }}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          }
+        }
+      ],
+      "description": "Fraction of table space occupied by dead tuples. Above 0.2 (20%) = significant bloat. Cross-reference with Estimated Bloat (bytes) to prioritize — high ratio on a small table is less urgent than moderate ratio on a huge table."
     },
     {
       "collapsed": false,
@@ -1659,7 +1805,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 94
+        "y": 106
       },
       "id": 106,
       "title": "Table & Index Sizes",
@@ -1668,7 +1814,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1687,7 +1833,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 95
+        "y": 107
       },
       "id": 60,
       "options": {
@@ -1708,7 +1854,7 @@
           "legendFormat": "{{ table }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1716,7 +1862,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1732,7 +1878,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 95
+        "y": 107
       },
       "id": 61,
       "options": {
@@ -1753,7 +1899,7 @@
           "legendFormat": "{{ table }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1761,7 +1907,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1780,7 +1926,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 103
+        "y": 115
       },
       "id": 62,
       "options": {
@@ -1801,7 +1947,7 @@
           "legendFormat": "{{ index }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1809,7 +1955,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1824,7 +1970,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 103
+        "y": 115
       },
       "id": 63,
       "options": {
@@ -1845,7 +1991,7 @@
           "legendFormat": "{{ index }} on {{ table }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1856,7 +2002,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 111
+        "y": 123
       },
       "id": 107,
       "title": "Lock Graph",
@@ -1865,7 +2011,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1880,7 +2026,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 112
+        "y": 124
       },
       "id": 70,
       "options": {
@@ -1901,7 +2047,7 @@
           "legendFormat": "blocked queries",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         },
         {
@@ -1909,7 +2055,7 @@
           "legendFormat": "max chain depth",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1917,7 +2063,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1935,7 +2081,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 112
+        "y": 124
       },
       "id": 71,
       "options": {
@@ -1956,7 +2102,7 @@
           "legendFormat": "{{ lock_type }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -1967,7 +2113,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 120
+        "y": 132
       },
       "id": 108,
       "title": "Query Regression Detection",
@@ -1976,7 +2122,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1991,7 +2137,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 121
+        "y": 133
       },
       "id": 80,
       "options": {
@@ -2012,16 +2158,66 @@
           "legendFormat": "regressions",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
-      "description": "Queries whose mean execution time increased by more than the threshold (default 2x) between poll cycles. Non-zero = something got slower \u2014 check recent deployments or data growth."
+      "description": "Queries whose mean execution time increased by more than the threshold (default 2x) between poll cycles. Non-zero = something got slower — check recent deployments or data growth."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 30
+          },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "max": 1,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 141
+      },
+      "id": 83,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "title": "pg_stat_statements Reset Detected",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "pg_stmt_reset_detected",
+          "legendFormat": "reset",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          }
+        }
+      ],
+      "description": "Fires 1 when pgpulse detects that pg_stat_statements counters were reset (e.g. pg_stat_statements_reset() called or server restart). Regression alerts are suppressed during reset cycles to avoid false positives. If this fires often, investigate who or what is resetting stats."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2036,7 +2232,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 129
+        "y": 145
       },
       "id": 81,
       "options": {
@@ -2057,16 +2253,16 @@
           "legendFormat": "{{ query_fingerprint }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
-      "description": "Ratio of current mean time to previous mean time. Values > 2.0 triggered a regression alert. Look for the highest ratios \u2014 those queries degraded the most."
+      "description": "Ratio of current mean time to previous mean time. Values > 2.0 triggered a regression alert. Look for the highest ratios — those queries degraded the most."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2081,7 +2277,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 139
+        "y": 155
       },
       "id": 82,
       "options": {
@@ -2102,11 +2298,56 @@
           "legendFormat": "{{ query_fingerprint }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
       "description": "Change in call count between poll cycles. Spikes = sudden increase in query frequency. Useful for spotting runaway background jobs or N+1 queries."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 165
+      },
+      "id": 84,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        }
+      },
+      "title": "Plan Changes (PG14+, top 10)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "topk(10, pg_stmt_plan_changes > 0)",
+          "legendFormat": "{{ query_fingerprint }}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          }
+        }
+      ],
+      "description": "Number of new execution plans generated per query since last poll. PG14+ only (uses plans column from pg_stat_statements). Non-zero = planner chose a different strategy. Correlate with regressions — a plan change followed by a regression = the new plan is worse."
     },
     {
       "collapsed": false,
@@ -2114,7 +2355,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 149
+        "y": 175
       },
       "id": 109,
       "title": "WAL & Replication",
@@ -2123,7 +2364,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2139,7 +2380,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 150
+        "y": 176
       },
       "id": 90,
       "options": {
@@ -2160,7 +2401,7 @@
           "legendFormat": "bytes/sec",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -2168,7 +2409,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2184,7 +2425,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 150
+        "y": 176
       },
       "id": 91,
       "options": {
@@ -2205,7 +2446,7 @@
           "legendFormat": "{{ slot }} ({{ client_addr }})",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -2213,7 +2454,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2229,7 +2470,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 158
+        "y": 184
       },
       "id": 92,
       "options": {
@@ -2250,7 +2491,7 @@
           "legendFormat": "{{ slot }} ({{ client_addr }})",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -2258,7 +2499,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2278,7 +2519,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 158
+        "y": 184
       },
       "id": 93,
       "options": {
@@ -2298,7 +2539,7 @@
           "legendFormat": "",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -2309,7 +2550,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 166
+        "y": 192
       },
       "id": 110,
       "title": "Connection Lifecycle",
@@ -2318,7 +2559,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2452,7 +2693,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 167
+        "y": 193
       },
       "id": 201,
       "options": {
@@ -2472,7 +2713,7 @@
           "expr": "pg_idle_connections{instance=~\"$instance\"}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -2482,7 +2723,7 @@
           "expr": "pg_idle_connection_seconds_total{instance=~\"$instance\"} / 3600",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -2492,7 +2733,7 @@
           "expr": "pg_connections_exhaustion_hours{instance=~\"$instance\"}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           },
           "format": "table",
           "instant": true,
@@ -2535,7 +2776,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2550,7 +2791,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 167
+        "y": 203
       },
       "id": 97,
       "options": {
@@ -2571,7 +2812,7 @@
           "legendFormat": "idle",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
@@ -2580,7 +2821,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2596,7 +2837,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 175
+        "y": 203
       },
       "id": 98,
       "options": {
@@ -2617,7 +2858,7 @@
           "legendFormat": "hours to exhaustion",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ]
@@ -2628,7 +2869,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 179
+        "y": 211
       },
       "id": 111,
       "title": "Table Stats & Checkpoint",
@@ -2637,7 +2878,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2653,7 +2894,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 180
+        "y": 212
       },
       "id": 99,
       "options": {
@@ -2674,7 +2915,7 @@
           "legendFormat": "{{ table }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
@@ -2683,7 +2924,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2698,7 +2939,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 200
+        "y": 222
       },
       "id": 120,
       "options": {
@@ -2719,7 +2960,7 @@
           "legendFormat": "timed",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         },
         {
@@ -2727,7 +2968,7 @@
           "legendFormat": "requested",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
@@ -2736,7 +2977,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2754,7 +2995,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 190
+        "y": 232
       },
       "id": 121,
       "options": {
@@ -2775,7 +3016,7 @@
           "legendFormat": "{{ table }}",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
@@ -2784,7 +3025,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2799,7 +3040,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 200
+        "y": 232
       },
       "id": 122,
       "options": {
@@ -2820,7 +3061,7 @@
           "legendFormat": "buffers",
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "${DS_PROMETHEUS}"
           }
         }
       ],
@@ -2843,7 +3084,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": ""
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(pg_up, instance)",
         "includeAll": true,
@@ -2861,7 +3102,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": ""
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(pg_node_role, role)",
         "includeAll": true,
@@ -2879,7 +3120,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "pgpulse \u2014 PostgreSQL Pulse",
+  "title": "pgpulse — PostgreSQL Pulse",
   "uid": "pgpulse-main",
-  "version": 12
+  "version": 13
 }

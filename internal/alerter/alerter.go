@@ -73,11 +73,12 @@ type Alert struct {
 
 // Alerter sends notifications via configured channels.
 type Alerter struct {
-	telegramToken string
-	telegramChat  string
-	webhookURL    string
-	cooldown      time.Duration
-	client        *http.Client
+	telegramToken   string
+	telegramChat    string
+	telegramBaseURL string // override for testing; empty uses api.telegram.org
+	webhookURL      string
+	cooldown        time.Duration
+	client          *http.Client
 
 	mu       sync.Mutex
 	lastSent map[AlertType]time.Time
@@ -146,7 +147,11 @@ func (a *Alerter) sendTelegram(alert Alert) {
 		"parse_mode": "HTML",
 	})
 
-	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", a.telegramToken)
+	base := a.telegramBaseURL
+	if base == "" {
+		base = fmt.Sprintf("https://api.telegram.org/bot%s", a.telegramToken)
+	}
+	url := base + "/sendMessage"
 	resp, err := a.client.Post(url, "application/json", bytes.NewReader(body))
 	if err != nil {
 		log.Printf("telegram alert error: %v", err)
